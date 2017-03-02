@@ -1,0 +1,1 @@
+weui.alert('普通的alert');

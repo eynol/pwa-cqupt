@@ -14,11 +14,13 @@
     "morgan": "~1.7.0",
     "pug": "^2.0.0-beta11",
     "serve-favicon": "~2.3.0",
-    "weui": "^1.1.1",
-    "weui.js": "^1.1.1"
+    "vue": "^2.2.1",
+    "vue-router": "^2.3.0",
+    "zepto": "^1.2.0"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
+    "gulp-plumber": "^1.1.0",
     "gulp-stylus": "^2.6.0"
   }
 }

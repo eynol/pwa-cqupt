@@ -1,8 +1,78 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  #app
+    transition(name="fade")
+      component(v-bind:is='currentView' v-bind:list="originList" v-on:success="login")        
+  .hidden
+    table
+      thead
+        tr
+          th
+          th 周一
+          th 周二
+          th 周三
+          th 周四
+          th 周五
+          th 周六
+          th 周日
+      tbody
+        tr
+          td 
+            div 1-2
+          td 
+            div thisday
+          td 
+            div thisday
+          td 
+            div thisday
+          td 
+            div thisday
+          td 
+            div thisday
+          td 
+            div thisday
+          td 
+            div thisday
 
-  script(src="./lib/weui.js/weui.min.js")
+    
+  
+  script(type="text/x-template" id="tpl-login")
+    .box.login
+      .form
+        h1 重邮课表
+        p 
+          input(type="text" v-model="fakeId" maxlength='10' v-on:keydown="fakeIdKeyDown" placeholder="请输入您的学号") 
+        p
+          a(href="javascript:;"  v-on:click="enterApp").btn 进入应用
+  script(type="text/x-template" id="tpl-main-panel")
+    .main-panel
+      .container-wrapper
+        .container
+          .tab
+            p.tab-btns
+              a(href="#today").active 今天
+              a(href="#tomorrow") 明天
+              a(href="#thisweek") 本周
+              a(href="#all") 全部
+          .tab-content
+            .tab-content_today
+              .panel
+                .card(v-for="item in list")
+                  .card-aside
+                    span.room {{item.where}}
+                    br
+                    span.order 1,2节课
+                  .card-main
+                    p.class-name {{item.className}}
+                    p.who {{item.who}}
+                    p.class-id {{item.classID}}
+      .nav-bar
+        a(href="javascript:;")
+          i.icon.list.active
+        a(href="javascript:;")
+          i.icon.setting
+
+  script(src='./lib/vue/vue.js')
   script(src="./js/index.js")
+  

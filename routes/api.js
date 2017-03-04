@@ -2,11 +2,12 @@ var express = require('express');
 var router = express.Router();
 var http = require('http');
 var querystring = require('querystring');
+var classTools = require('../classtools')
 
 var _host = 'jwc.cqupt.edu.cn'
 var _path = '/showUserKebiao.php'
 
-var cheerio = require('cheerio');
+
 /* GET home page. */
 router.get('/kebiao/:type/:id', function(req, res, next) {
 
@@ -40,7 +41,7 @@ router.get('/kebiao/:type/:id', function(req, res, next) {
             //      title.push($(this).find('h1').find('a').text().trim());
             //  });
             //  callback()
-            res.end(_html);
+            res.json({code:0,list:classTools.html2array(_html)});
         });
     })
     oneshot.write(_data);

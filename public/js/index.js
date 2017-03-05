@@ -70,9 +70,41 @@ Vue.component('login', {
 Vue.component('main-panel', {
 
   template: '#tpl-main-panel',
-  props: ['list'],
+  props: ['list','today','tomorrow'],
   data: function () {
-    return {}
+    var todayList = [],
+        tomorrowList = [];
+    var _this = this;
+    this.list.forEach(function(el){
+      var when = el.when;
+      el.day = getDay(el.when.substring(2,3));
+      el.whichClass =  el.when.substring(4,8);
+      el.weekend = getWeekends(el.when.substring(8));
+    })
+
+    return {tab:'today'}
+  },
+  computed:{
+    todayList:function(){
+      var _this = this;
+      var list = [];
+      this.list.forEach(function (el) {
+        if (el.weekend.indexOf(_this.today.weekendPast) !== -1 && el.day === _this.today.todayDay) {
+          list.push(el)
+        }
+      })
+      return list;
+    },
+    tomorrowList:function(){
+      var _this = this;
+      var list = [];
+      this.list.forEach(function (el) {
+        if(el.weekend.indexOf(_this.tomorrow.weekendPast)!==-1 && el.day === _this.tomorrow.todayDay){
+          list.push(el)
+        }
+      })
+      return list;
+    }
   },
   methods: {}
 
@@ -82,12 +114,15 @@ Vue.component('main-panel', {
 
 var store_id = storeTool.getSchoolID();
 var store_list = storeTool.getListById(store_id);
+var d = new Date();
 var app = new Vue({
   el: '#app',
   data: {
     id:store_id ,
     originList: store_list,
-    currentView: ""
+    currentView: "",
+    todayOption :doTimeCount(d),
+    tomorrowOption:doTimeCount(new Date(d.getFullYear(),d.getMonth(),d.getDate()+1))
   },
   beforeMount: function () {
     if (this.id) {
@@ -110,9 +145,14 @@ var app = new Vue({
   methods: {
     login: function (result) {
       console.log("receive id:" + result.id);
+
+
+     
+
       this.id = Number(result.id);
       this.originList = result.list;
       this.currentView = 'main-panel';
+
 
       storeTool.setSchoolID(this.id);
       storeTool.setListById(this.id,result.list);
@@ -120,14 +160,20 @@ var app = new Vue({
   }
 })
 
+  /**
+   *  Date.getDay() 星期天是0
+   * 
+   * @param {date} thatDay 
+   * @returns 
+   */
  function doTimeCount(thatDay) {
 
-  var timeGap = thatDay - new Date(2017, 1, 27);;
+  var timeGap = thatDay - new Date(2017, 1, 27);
   var dayPast = Math.floor(timeGap / (1000 * 60 * 60 * 24)) + 1;
   var weekendPast = Math.floor(dayPast / 7) + 1;
   var isoddWeek = (weekendPast % 2) === 1;
-
-  return {timeGap: timeGap, dayPast: dayPast, weekendPast: weekendPast, isoddWeek: isoddWeek}
+  
+  return {timeGap: timeGap, dayPast: dayPast, weekendPast: weekendPast, isoddWeek: isoddWeek,todayDay:thatDay.getDay()}
 }
 function getListById(sid, callback) {
   var xhr = new XMLHttpRequest();
@@ -141,4 +187,56 @@ function getListById(sid, callback) {
     alert("发送失败！")
   }
   xhr.send();
+}
+
+
+function getDay(str){
+  if(/[123456]/.test(str)){
+      return Number(str);
+  }else{
+    return 0
+  }
+}
+/**
+ *  get weekends list by literal string
+ *  return a list, when it's a odd-week class, make even-week class out of it
+ * @param {string} when 
+ * @returns {array}
+ */
+function getWeekends(when){
+
+  var oddWeek = (when.indexOf('单周')!==-1)?true:false;
+  var evenWeek = (when.indexOf('双周')!==-1)?true:false;
+  console.log(oddWeek,evenWeek);
+  var ret = [];
+
+  when.split(',').forEach(function(item){
+    item = item.replace(/(单|双)?周/g,'');
+
+    if(/^\d{1,2}$/.test(item)){
+      ret.push(Number(item));
+    }else if(/^\d{1,2}-\d{1,2}$/.test(item)){
+      var arr = item.split('-');
+      var from = Number(arr[0]);
+      var to = Number(arr[1]);
+      for(;from<=to;from++){
+        ret.push(from);
+      }
+
+    }else{
+      ret.push(-99);
+    }
+
+  })
+  if(oddWeek){
+    ret = ret.filter(function(n){
+      return n%2===1?true:false
+    })
+  }
+  if(evenWeek){
+    ret = ret.filter(function(n){
+      return n%2===0?true:false
+    })
+  }
+  return ret;
 }

@@ -35,7 +35,11 @@ body
   background-color: #f76d68;
   box-shadow: 0 3px 3px -1px rgba(255, 41, 41, 0.53);
 
-
+.btn.isLoading
+  &:before
+    content url(../icon/loading.gif)
+    display: inline-block;
+    vertical-align: -5px;
 
 .icon
   &:before

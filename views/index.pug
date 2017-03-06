@@ -3,7 +3,7 @@ extends layout
 block content
   #app
     transition(name="fade")
-      component(v-bind:is='currentView' v-bind:list="originList" v-bind:today="todayOption" v-bind:tomorrow="tomorrowOption" v-on:success="login")        
+      component(v-bind:is='currentView' v-bind:sid="id" v-bind:list="originList" v-bind:today="todayOption" v-bind:tomorrow="tomorrowOption" v-on:success="login" v-on:signout="signout")        
   
   script(type="text/x-template" id="tpl-login")
     .box.login
@@ -48,8 +48,8 @@ block content
             .content_action
               a(href="javascript:;" v-on:click="show_table").btn.primary 全部课表
           .content.class-table(v-bind:class="{ active: tableActive }")
-            h1 今天是第{{today.weekendPast}}周
-            table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class
+            h1.center.aligned  今天是第{{today.weekendPast}}周
+            table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class.center.aligned 
               thead
                 tr
                   th 时间
@@ -76,12 +76,12 @@ block content
             p.center.aligned 
               a(href="javascript:;").btn.primary 开启上课提醒
             p.center.aligned 
-              a(href="javascript:;").btn.primary 更新课表
-            p GitHub 地址为：
+              a(href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}").btn.primary 更新课表
+            p.center.aligned  GitHub 地址为：
               a(href="https://github.com/vankai/pwa-cqupt" target="_blank") https://github.com/vankai/pwa-cqupt
-            p 反馈可以发送邮件到：mr.taokai@foxmail.com
+            p.center.aligned  反馈可以发送邮件到：mr.taokai@foxmail.com
             p.center.aligned 
-              a(href="javascript:;").btn.danger 注销
+              a(href="javascript:;" v-on:click="signout").btn.danger 注销
       .nav-bar
         a(href="javascript:;" v-on:click="navTo('today')")
           i.icon.list(v-bind:class="{active: tab ==='today'}")

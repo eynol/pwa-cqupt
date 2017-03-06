@@ -41,7 +41,7 @@ router.get('/kebiao/:type/:id', function(req, res, next) {
             //      title.push($(this).find('h1').find('a').text().trim());
             //  });
             //  callback()
-            res.json({code:0,list:classTools.html2array(_html)});
+            res.json({code:0,id:req.params.id,list:classTools.html2array(_html)});
         });
     })
     oneshot.write(_data);

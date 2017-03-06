@@ -12,18 +12,23 @@ var storeTool = {
   setSchoolID: function (sid) {
     return localStorage.setItem(this._prefix + 'schoolID', String(sid));
   },
-  getListById:function(sid){
-    var str = localStorage.getItem(this._prefix+'list'+sid);
+  getListById: function (sid) {
+    var str = localStorage.getItem(this._prefix + 'list' + sid);
     return JSON.parse(str);
   },
-  setListById:function(sid,list){
-    var str ='';
-    if(typeof list ==='string'){
+  setListById: function (sid, list) {
+    var str = '';
+    if (typeof list === 'string') {
       str = list;
-    }else if(typeof list === 'object'){
+    } else if (typeof list === 'object') {
       str = JSON.stringify(list);
     }
-    localStorage.setItem(this._prefix+'list'+sid,str);
+    localStorage.setItem(this._prefix + 'list' + sid, str);
+  },
+  signout:function(){
+    var id_to_delete = this.getSchoolID();
+    localStorage.removeItem(this._prefix + 'schoolID');
+    localStorage.removeItem(this._prefix + 'list' + id_to_delete)
   }
 }
 
@@ -45,7 +50,7 @@ Vue.component('login', {
       if (/\d{10}/.test(this.fakeId)) {
         getListById(this.fakeId, function (result) {
           if (result.code === 0) {
-              result.id = _self.fakeId;
+            result.id = _self.fakeId;
             _self.$emit('success', result);
           } else {
             _self.error(result.msg)
@@ -67,118 +72,190 @@ Vue.component('login', {
 
 })
 
+/**
+ * sort class list by class Orders
+ *
+ * @param {object} a
+ * @param {object} b
+ * @returns {number}
+ */
+function sortClassList(a, b) {
+  if (a.whichClass.substring(1, 3) > b.whichClass.substring(1, 3)) {
+    return 1;
+  } else {
+    return -1
+  }
+}
+
 Vue.component('main-panel', {
 
   template: '#tpl-main-panel',
-  props: ['list','today','tomorrow'],
+  props: [
+    'sid','list', 'today', 'tomorrow'
+  ],
   data: function () {
     var todayList = [],
-        tomorrowList = [];
+      tomorrowList = [];
     var _this = this;
-    this.list.forEach(function(el){
-      var when = el.when;
-      el.day = getDay(el.when.substring(2,3));
-      el.whichClass =  el.when.substring(4,8);
-      el.weekend = getWeekends(el.when.substring(8));
-      el.thisWeek = (el.weekend.indexOf(_this.today.weekendPast)!==-1)?true:false;
-    })
+    this
+      .list
+      .forEach(function (el) {
+        el.thisWeek = (el.weekend.indexOf(_this.today.weekendPast) !== -1)
+          ? true
+          : false;
+      })
 
-    return {tab:'today',tableActive:false}
+    return {tab: 'today', tableActive: false,isLoading:false}
   },
-  computed:{
-    todayList:function(){
+  computed: {
+    todayList: function () {
       var _this = this;
       var list = [];
-      this.list.forEach(function (el) {
-        if (el.weekend.indexOf(_this.today.weekendPast) !== -1 && el.day === _this.today.todayDay) {
-          list.push(el)
-        }
-      })
+      this
+        .list
+        .forEach(function (el) {
+          if (el.weekend.indexOf(_this.today.weekendPast) !== -1 && el.day === _this.today.todayDay) {
+            list.push(el)
+          }
+        })
       return list.sort(sortClassList);
     },
-    tomorrowList:function(){
+    tomorrowList: function () {
       var _this = this;
       var list = [];
-      this.list.forEach(function (el) {
-        if(el.weekend.indexOf(_this.tomorrow.weekendPast)!==-1 && el.day === _this.tomorrow.todayDay){
-          list.push(el)
-        }
-      })
+      this
+        .list
+        .forEach(function (el) {
+          if (el.weekend.indexOf(_this.tomorrow.weekendPast) !== -1 && el.day === _this.tomorrow.todayDay) {
+            list.push(el)
+          }
+        })
       return list.sort(sortClassList);
     },
-    table:function(){
+    table: function () {
       var ret = {
-        hasWeekend :false,
-        data:[[{},{},{},{},{},{},{}],
-              [{},{},{},{},{},{},{}],
-              [{},{},{},{},{},{},{}],
-              [{},{},{},{},{},{},{}],
-              [{},{},{},{},{},{},{}],
-              [{},{},{},{},{},{},{}]]
+        hasWeekend: false,
+        data: [
+          [
+            {},
+            {},
+            {},
+            {},
+            {}, {}, {}
+          ],
+          [
+            {},
+            {},
+            {},
+            {},
+            {}, {}, {}
+          ],
+          [
+            {},
+            {},
+            {},
+            {},
+            {}, {}, {}
+          ],
+          [
+            {},
+            {},
+            {},
+            {},
+            {}, {}, {}
+          ],
+          [
+            {},
+            {},
+            {},
+            {},
+            {}, {}, {}
+          ],
+          [
+            {},
+            {},
+            {},
+            {},
+            {}, {}, {}
+          ]
+        ]
       };
       /**
        *  return rows index (start with 0);
-       * 
-       * @param {string} str 
+       *
+       * @param {string} str
        * @returns {number}
        */
-      function getRowIndex (str){
-          if(/\d+/.test(str)){
-            return Math.floor(Number(str.substring(0,1))/2)
-          }else{
-            return 5;
-          }
+      function getRowIndex(str) {
+        if (/\d+/.test(str)) {
+          return Math.floor(Number(str.substring(0, 1)) / 2)
+        } else {
+          return 5;
+        }
       }
       /**
        * return colums index (start with 0);
-       * 
-       * @param {number} num 
+       *
+       * @param {number} num
        * @returns {number}
        */
-      function getColIndex(num){
-        return num == 0 ? 6:num-1;
+      function getColIndex(num) {
+        return num == 0
+          ? 6
+          : num - 1;
       }
 
-      this.list.forEach(function(el){
-        var rowIndex = getRowIndex(el.whichClass.substring(1,3));
-        var colIndex = getColIndex(el.day);
-        if(/6|0/.test(el.day)){
-          ret.hasWeekend =true;
-        }
-        ret.data[rowIndex][colIndex] = el;
-      })
-      
+      this
+        .list
+        .forEach(function (el) {
+          var rowIndex = getRowIndex(el.whichClass.substring(1, 3));
+          var colIndex = getColIndex(el.day);
+          if (/6|0/.test(el.day)) {
+            ret.hasWeekend = true;
+          }
+          ret.data[rowIndex][colIndex] = el;
+        })
 
       return ret;
     }
   },
   methods: {
-    show_table:function(){
-      this.tableActive =true
+    show_table: function () {
+      this.tableActive = true
     },
-    hide_table:function(){
-       this.tableActive =false
+    hide_table: function () {
+      this.tableActive = false
     },
-    navTo:function(tab){
+    navTo: function (tab) {
       this.tab = tab;
+    },
+    updateList:function(){
+
+      var _this = this;
+      this.isLoading = true;
+      getListById(this.sid,function(result){
+          _this.$emit('success', result);
+          _this.isLoading = false;
+      })
+    },
+    signout:function(){
+      this.$emit('signout');
     }
   }
 
 })
 
-
-
 var store_id = storeTool.getSchoolID();
 var store_list = storeTool.getListById(store_id);
-var d = new Date();
+
 var app = new Vue({
   el: '#app',
   data: {
-    id:store_id ,
-    originList: store_list,
+    id: store_id,
+    originList: store_list||[],
     currentView: "",
-    todayOption :doTimeCount(d),
-    tomorrowOption:doTimeCount(new Date(d.getFullYear(),d.getMonth(),d.getDate()+1))
+    todayOption: {},
+    tomorrowOption: {}
   },
   beforeMount: function () {
     if (this.id) {
@@ -186,6 +263,7 @@ var app = new Vue({
     } else {
       this.currentView = 'login'
     }
+    this.newDay();
   },
   components: {
     'login': Vue.component('login'),
@@ -202,34 +280,48 @@ var app = new Vue({
     login: function (result) {
       console.log("receive id:" + result.id);
 
-
-     
-
       this.id = Number(result.id);
       this.originList = result.list;
       this.currentView = 'main-panel';
 
-
       storeTool.setSchoolID(this.id);
-      storeTool.setListById(this.id,result.list);
+      storeTool.setListById(this.id, result.list);
+    },
+    newDay: function () {
+      var d = new Date();
+      this.todayOption = doTimeCount(d),
+      this.tomorrowOption = doTimeCount(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1))
+    },
+    signout:function(){
+      this.id = undefined;
+      this.originList = [];
+      this.currentView = 'login';
+      storeTool.signout();
     }
+    
   }
 })
 
-  /**
+/**
    *  Date.getDay() 星期天是0
-   * 
-   * @param {date} thatDay 
-   * @returns 
+   *
+   * @param {date} thatDay
+   * @returns
    */
- function doTimeCount(thatDay) {
+function doTimeCount(thatDay) {
 
   var timeGap = thatDay - new Date(2017, 1, 27);
   var dayPast = Math.floor(timeGap / (1000 * 60 * 60 * 24)) + 1;
   var weekendPast = Math.floor(dayPast / 7) + 1;
   var isoddWeek = (weekendPast % 2) === 1;
-  
-  return {timeGap: timeGap, dayPast: dayPast, weekendPast: weekendPast, isoddWeek: isoddWeek,todayDay:thatDay.getDay()}
+
+  return {
+    timeGap: timeGap,
+    dayPast: dayPast,
+    weekendPast: weekendPast,
+    isoddWeek: isoddWeek,
+    todayDay: thatDay.getDay()
+  }
 }
 function getListById(sid, callback) {
   var xhr = new XMLHttpRequest();
@@ -243,62 +335,4 @@ function getListById(sid, callback) {
     alert("发送失败！")
   }
   xhr.send();
-}
-
-function sortClassList(a,b){
-  if(a.whichClass.substring(1,3)>b.whichClass.substring(1,3)){
-    return 1;
-  }else{
-    return -1
-  }
-}
-function getDay(str){
-  if(/[123456]/.test(str)){
-      return Number(str);
-  }else{
-    return 0
-  }
-}
-/**
- *  get weekends list by literal string
- *  return a list, when it's a odd-week class, make even-week class out of it
- * @param {string} when 
- * @returns {array}
- */
-function getWeekends(when){
-
-  var oddWeek = (when.indexOf('单周')!==-1)?true:false;
-  var evenWeek = (when.indexOf('双周')!==-1)?true:false;
-  console.log(oddWeek,evenWeek);
-  var ret = [];
-
-  when.split(',').forEach(function(item){
-    item = item.replace(/(单|双)?周/g,'');
-
-    if(/^\d{1,2}$/.test(item)){
-      ret.push(Number(item));
-    }else if(/^\d{1,2}-\d{1,2}$/.test(item)){
-      var arr = item.split('-');
-      var from = Number(arr[0]);
-      var to = Number(arr[1]);
-      for(;from<=to;from++){
-        ret.push(from);
-      }
-
-    }else{
-      ret.push(-99);
-    }
-
-  })
-  if(oddWeek){
-    ret = ret.filter(function(n){
-      return n%2===1?true:false
-    })
-  }
-  if(evenWeek){
-    ret = ret.filter(function(n){
-      return n%2===0?true:false
-    })
-  }
-  return ret;
 }

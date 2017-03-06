@@ -10,7 +10,8 @@ body
 /** 
 *             Elements
 */
-
+.center.aligned
+  text-align: center
 
 .btn
   display: inline-block;
@@ -25,6 +26,16 @@ body
   &:active
     box-shadow: 0 1px  2px  -1px rgba(0,0,0,.13)
     transform: translateY(2px)
+.btn.primary
+  color:white
+  background-color: #13eab2
+  box-shadow: 0 3px 3px -1px rgba(0, 138, 102, 0.53)
+.btn.danger
+  color:white
+  background-color: #f76d68;
+  box-shadow: 0 3px 3px -1px rgba(255, 41, 41, 0.53);
+
+
 
 .icon
   &:before
@@ -105,7 +116,7 @@ body
     margin: 20px
     padding: 10px 20px
     border-radius: 2px
-    box-shadow: 0 3px 5px -1px rgba(0,0,0,.13)
+    box-shadow: 0 3px 12px -3px rgba(0,0,0,0.23)
   .card-aside
     float: left
     color: #444
@@ -121,17 +132,68 @@ body
     font-size: 16px;
   .class-id
     font-size: 12px;
-.content_all   
+.content_action   
   text-align: center
   padding: 2em 0 3em
 
+.content
+  position: absolute
+  top: 0
+  width: 100%
+  height: 100%;
+  overflow: auto;
+  background-color: white;
+  transform-style: flat
+  transform: translateX(100%);
+  transition: all 0.3s ease-in-out
+  opacity: 0
+.content.active
+  transform: translateX(0);
+  opacity: 1
 
+
+/***
+*              Table
+*/
+
+tableNth = 1,2,3,4,5,6
+tableTimes = '上午8:00至9:40','上午10:05-11:45','下午2:00-3:40','下午4:05-5:45','晚上7:00-8:40','晚上9:05-10:45';
+
+.table-all_class
+  border-collapse: collapse
+  tbody
+    for nth, i in tableNth
+      tr:nth-child({nth})
+        &:before
+          content: tableTimes[i]
+    tr:nth-child(2)
+    tr:nth-child(4)
+      border-bottom: 2px solid pink
+    td
+      border:1px solid rgba(0,0,0,.12)
+      &.thisWeek
+        background-color: rgba(11, 253, 15, 0.43);
+
+table.noWeekend
+  th:nth-child(7)
+  th:nth-child(8)
+    display: none
+  tr
+    td:nth-child(7)
+    td:nth-child(8)
+      display: none
+  
+
+.table-cell
+  p
+    margin: 0
 .nav-bar
   height: 40px;
-  border-top: solid 1px red;
+  position: relative
   display: flex
   justify-content: space-around
   align-items: center
+  border-top:1px solid rgba(0, 0, 0, 0.09)
   a
     text-decoration: none;
 

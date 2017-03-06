@@ -17,7 +17,7 @@ block content
     .main-panel
       .container-wrapper
         .container
-          .content
+          .content.active
             .content_today
               .panel
                 .notify(v-if="todayList.length!==0")
@@ -36,7 +36,7 @@ block content
               .panel
                 .notify(v-if="tomorrowList.length!==0")
                   h1 明日有课
-                .card(v-for="item in list")
+                .card(v-for="item in tomorrowList")
                   .card-aside
                     span.room {{item.where}}
                     br
@@ -45,13 +45,48 @@ block content
                     p.class-name {{item.className}}
                     p.who {{item.who}}
                     p.class-id {{item.classID}}
-            .content_all
-              a(href="javascript:;").btn 全部课表
+            .content_action
+              a(href="javascript:;" v-on:click="show_table").btn.primary 全部课表
+          .content.class-table(v-bind:class="{ active: tableActive }")
+            h1 今天是第{{today.weekendPast}}周
+            table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class
+              thead
+                tr
+                  th 时间
+                  th 周一
+                  th 周二
+                  th 周三
+                  th 周四
+                  th 周五
+                  th 周六
+                  th 周日
+              tbody
+                tr(v-for="row in table.data")
+                  td(v-for="item in row" v-bind:class="{thisWeek:item.thisWeek}")
+                    .table-cell
+                      p {{item.className}}
+                      p {{item.who}}
+                      p {{item.where}}
+                      p {{item.when && item.when.substring(8)}}
+
+            .content_action
+              a(href="javascript:;" v-on:click="hide_table").btn.primary 单日课表
+          .content.setting-content(v-bind:class="{active: tab ==='setting'}")
+
+            p.center.aligned 
+              a(href="javascript:;").btn.primary 开启上课提醒
+            p.center.aligned 
+              a(href="javascript:;").btn.primary 更新课表
+            p GitHub 地址为：
+              a(href="https://github.com/vankai/pwa-cqupt" target="_blank") https://github.com/vankai/pwa-cqupt
+            p 反馈可以发送邮件到：mr.taokai@foxmail.com
+            p.center.aligned 
+              a(href="javascript:;").btn.danger 注销
       .nav-bar
-        a(href="javascript:;")
-          i.icon.list.active
-        a(href="javascript:;")
-          i.icon.setting
+        a(href="javascript:;" v-on:click="navTo('today')")
+          i.icon.list(v-bind:class="{active: tab ==='today'}")
+        a(href="javascript:;" v-on:click="navTo('setting')")
+          i.icon.setting(v-bind:class="{active: tab ==='setting'}")
 
   script(src='./lib/vue/vue.js')
   script(src="./js/index.js")

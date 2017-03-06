@@ -80,9 +80,10 @@ Vue.component('main-panel', {
       el.day = getDay(el.when.substring(2,3));
       el.whichClass =  el.when.substring(4,8);
       el.weekend = getWeekends(el.when.substring(8));
+      el.thisWeek = (el.weekend.indexOf(_this.today.weekendPast)!==-1)?true:false;
     })
 
-    return {tab:'today'}
+    return {tab:'today',tableActive:false}
   },
   computed:{
     todayList:function(){
@@ -93,7 +94,7 @@ Vue.component('main-panel', {
           list.push(el)
         }
       })
-      return list;
+      return list.sort(sortClassList);
     },
     tomorrowList:function(){
       var _this = this;
@@ -103,10 +104,65 @@ Vue.component('main-panel', {
           list.push(el)
         }
       })
-      return list;
+      return list.sort(sortClassList);
+    },
+    table:function(){
+      var ret = {
+        hasWeekend :false,
+        data:[[{},{},{},{},{},{},{}],
+              [{},{},{},{},{},{},{}],
+              [{},{},{},{},{},{},{}],
+              [{},{},{},{},{},{},{}],
+              [{},{},{},{},{},{},{}],
+              [{},{},{},{},{},{},{}]]
+      };
+      /**
+       *  return rows index (start with 0);
+       * 
+       * @param {string} str 
+       * @returns {number}
+       */
+      function getRowIndex (str){
+          if(/\d+/.test(str)){
+            return Math.floor(Number(str.substring(0,1))/2)
+          }else{
+            return 5;
+          }
+      }
+      /**
+       * return colums index (start with 0);
+       * 
+       * @param {number} num 
+       * @returns {number}
+       */
+      function getColIndex(num){
+        return num == 0 ? 6:num-1;
+      }
+
+      this.list.forEach(function(el){
+        var rowIndex = getRowIndex(el.whichClass.substring(1,3));
+        var colIndex = getColIndex(el.day);
+        if(/6|0/.test(el.day)){
+          ret.hasWeekend =true;
+        }
+        ret.data[rowIndex][colIndex] = el;
+      })
+      
+
+      return ret;
     }
   },
-  methods: {}
+  methods: {
+    show_table:function(){
+      this.tableActive =true
+    },
+    hide_table:function(){
+       this.tableActive =false
+    },
+    navTo:function(tab){
+      this.tab = tab;
+    }
+  }
 
 })
 
@@ -189,7 +245,13 @@ function getListById(sid, callback) {
   xhr.send();
 }
 
-
+function sortClassList(a,b){
+  if(a.whichClass.substring(1,3)>b.whichClass.substring(1,3)){
+    return 1;
+  }else{
+    return -1
+  }
+}
 function getDay(str){
   if(/[123456]/.test(str)){
       return Number(str);

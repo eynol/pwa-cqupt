@@ -5,6 +5,7 @@ body {
 body {
   margin: 0;
   padding: 0;
+  color: #444;
 }
 * {
   box-sizing: border-box;
@@ -129,9 +130,14 @@ body {
 }
 .content .card {
   margin: 20px;
+  text-align: left;
   padding: 10px 20px;
   border-radius: 2px;
+  background-color: #fff;
   box-shadow: 0 3px 12px -3px rgba(0,0,0,0.23);
+}
+.content .card.active {
+  animation: activeClass 2s infinite;
 }
 .content .card-aside {
   float: left;
@@ -143,7 +149,18 @@ body {
 }
 .content .card-main {
   display: table-cell;
-  padding-left: 10px;
+  position: relative;
+  padding-left: 3em;
+}
+.content .card-main:before {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  border-right: 2px dashed rgba(0,0,0,0.32);
+  width: 1px;
+  left: 1.5em;
+  transform: translateX(-1px);
+  height: 100%;
 }
 .content .card-main p {
   margin: 0 0 0.5em 0;
@@ -158,13 +175,18 @@ body {
   text-align: center;
   padding: 2em 0 3em;
 }
+@media screen and (min-width: 768px) {
+  .card {
+    display: inline-block;
+  }
+}
 .content {
   position: absolute;
   top: 0;
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: #fff;
+  background-color: #f1f1f1;
   transform-style: flat;
   transform: translateX(100%);
   transition: all 0.3s ease-in-out;
@@ -173,6 +195,17 @@ body {
 .content.active {
   transform: translateX(0);
   opacity: 1;
+}
+.content_today,
+.content_tomorrow {
+  text-align: center;
+}
+.setting-content p.center.aligned {
+  max-width: 768px;
+  margin: 1.3em auto;
+}
+.setting-content .pd1em {
+  padding: 1.7em;
 }
 /***
 *              Table
@@ -185,24 +218,25 @@ body {
   overflow: auto;
   width: 100%;
   display: block;
+  background-color: #fff;
 }
 .table-all_class tbody tr:nth-child(1):before {
   content: '上午8:00至9:40';
 }
 .table-all_class tbody tr:nth-child(2):before {
-  content: '上午10:05-11:45';
+  content: '上午10:05至11:45';
 }
 .table-all_class tbody tr:nth-child(3):before {
-  content: '下午2:00-3:40';
+  content: '下午2:00至3:40';
 }
 .table-all_class tbody tr:nth-child(4):before {
-  content: '下午4:05-5:45';
+  content: '下午4:05至5:45';
 }
 .table-all_class tbody tr:nth-child(5):before {
-  content: '晚上7:00-8:40';
+  content: '晚上7:00至8:40';
 }
 .table-all_class tbody tr:nth-child(6):before {
-  content: '晚上9:05-10:45';
+  content: '晚上8:50至10:30';
 }
 .table-all_class tbody tr:nth-child(2),
 .table-all_class tbody tr:nth-child(4) {
@@ -250,6 +284,38 @@ table.noWeekend tr td:nth-child(7) {
 }
 .fade-leave-active {
   animation: fade-out 0.5s;
+}
+@-moz-keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}
+@-webkit-keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}
+@-o-keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}
+@keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
 }
 @-moz-keyframes blink {
   0% {

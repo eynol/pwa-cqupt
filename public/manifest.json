@@ -6,6 +6,7 @@
     "scope": "./",
     "use_cache": false
   },
+  "scope": "./",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",

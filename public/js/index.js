@@ -106,17 +106,6 @@ Vue.component('main-panel', {
     'sid', 'list', 'today', 'tomorrow', 'lastUpdateTime'
   ],
   data: function () {
-    var todayList = [],
-      tomorrowList = [];
-    var _this = this;
-    this
-      .list
-      .forEach(function (el) {
-        el.thisWeek = (el.weekend && (el.weekend.indexOf(_this.today.weekendPast) !== -1))
-          ? true
-          : false;
-      })
-
     return {tab: 'today', tableActive: false, isLoading: false}
   },
   computed: {
@@ -295,6 +284,7 @@ var app = new Vue({
     tomorrowOption: {},
     lastRequestTime: lastRequestTime
   },
+  beforeCreate: function () {},
   beforeMount: function () {
     if (this.id) {
       this.currentView = 'main-panel'
@@ -302,6 +292,10 @@ var app = new Vue({
       this.currentView = 'login'
     }
     this.newDay();
+    this.updateThisWeek();
+  },
+  beforeUpdate: function () {
+    this.updateThisWeek()
   },
   components: {
     'login': Vue.component('login'),
@@ -317,6 +311,7 @@ var app = new Vue({
   methods: {
     login: function (result) {
       console.log("receive id:" + result.id);
+      var _this = this;
 
       this.id = Number(result.id);
       this.lastRequestTime = result.time;
@@ -337,6 +332,17 @@ var app = new Vue({
       this.originList = [];
       this.currentView = 'login';
       storeTool.signout();
+    },
+    updateThisWeek: function () {
+      var _this = this;
+      this
+        .originList
+        .forEach(function (el) {
+          el.thisWeek = (el.weekend && (el.weekend.indexOf(_this.todayOption.weekendPast) !== -1))
+            ? true
+            : false;
+        })
+
     }
 
   }
@@ -348,11 +354,54 @@ var app = new Vue({
 app.$on('DayDown', function () {
   app.newDay()
 })
+app.$on('updateClassState', function () {})
+
 setInterval((function () {
-  var current_day = (new Date().getDay())
+  var current_day = (new Date().getDay());
+  var time_gap = [
+    {
+      fromH: 8,
+      fromM: 0,
+      toH: 9,
+      toM: 40
+    },
+    {
+      fromH: 10,
+      fromM: 5,
+      toH: 11,
+      toM: 45
+    },
+    {
+      fromH: 14,
+      fromM: 0,
+      toH: 15,
+      toM: 40
+    },
+    {
+      fromH: 16,
+      fromM: 5,
+      toH: 17,
+      toM: 45
+    },
+    {
+      fromH: 19,
+      fromM: 0,
+      toH: 20,
+      toM: 40
+    },
+    {
+      fromH: 20,
+      fromM: 50,
+      toH: 22,
+      toM: 30
+    }
+  ]
   return function () {
-    var newDay = (new Date()).getDay();
-    if (newDay != current_day) {
+    var now = new Date();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var today_day = now.getDay();
+    if (today_day != current_day) {
       app.$emit('DayDown')
     }
     console.log('哔')
@@ -404,24 +453,37 @@ if ('serviceWorker' in navigator) {
       reg.active.onmessage = function (e) {
         console.log(e.data)
       }
-    reg.showNotification("3302", {
-              
-              body: "软件工程导论 张西华，\n hell",
-              data:"nice work",
-              tag: "yes",
-              icon:'./cykb192.png',
-              vibrate: [200, 100, 200, 100, 200, 100, 200],
-              sticky:true,
-              requireInteraction:true,
-              actions:[{action:"dismiss",title:"知道了"},{action:"arived",title:"我到教室了"}]
-            })
+      reg.showNotification("3302", {
+        body: "软件工程导论 张西华，\n hell",
+        data: "nice work",
+        tag: "yes",
+        icon: './cykb192.png',
+        vibrate: [
+          200,
+          100,
+          200,
+          100,
+          200,
+          100,
+          200
+        ],
+        actions: [
+          {
+            action: "dismiss",
+            title: "知道了"
+          }, {
+            action: "arived",
+            title: "我到教室了"
+          }
+        ]
+      })
       if (Notification.permission == 'default') {
 
         Notification
           .requestPermission()
           .then(function (result) {
             console.log(result);
-           
+
           });
       }
 

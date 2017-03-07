@@ -28,7 +28,7 @@ block content
               .panel
                 .notify(v-if="todayList.length!==0")
                   h1 今日有课
-                .card(v-for="item in todayList")
+                .card(v-for="item in todayList" v-bind:class="{ active: item.activated }" )
                   .card-aside
                     span.room {{item.where}}
                     br
@@ -56,6 +56,7 @@ block content
               p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
           .content.class-table(v-bind:class="{ active: tableActive }" )
             h1.center.aligned  今天是第{{today.weekendPast}}周
+            p.center.aligned * 点亮的课程是本周的课表
             table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class.center.aligned 
               thead
                 tr
@@ -85,11 +86,17 @@ block content
               a(href="javascript:;").btn.primary 开启上课提醒
             p.center.aligned 
               a(href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}").btn.primary 更新课表
-            p.center.aligned  GitHub 地址为：
-              a(href="https://github.com/vankai/pwa-cqupt" target="_blank") https://github.com/vankai/pwa-cqupt
-            p.center.aligned  反馈可以发送邮件到：mr.taokai@foxmail.com
             p.center.aligned 
               a(href="javascript:;" v-on:click="signout").btn.danger 注销
+            br
+            br
+            p.center.aligned.pd1em.
+              本应用采用渐进式Web应用开发，可以添加快捷方式到桌面作为为本地应用使用。<br>
+              目前只有Android系统上的google浏览器和火狐浏览器支持该技术，苹果五年计划中提到可能会支持。<br>
+              请在这两个浏览器中打开本网页，然后在「选项」中找到「添加至主屏幕」，然后你就可以像原生应用一样使用本应用了。
+            p.center.aligned  GitHub 地址
+              a(href="https://github.com/vankai/pwa-cqupt" target="_blank") 点我前往
+            p.center.aligned  反馈可以发送邮件到：mr.taokai@foxmail.com
       .nav-bar
         a(href="javascript:;" v-on:click="navTo('today')")
           i.icon.list(v-bind:class="{active: tab ==='today'}")

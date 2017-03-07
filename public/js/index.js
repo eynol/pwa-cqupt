@@ -25,7 +25,7 @@ var storeTool = {
     }
     localStorage.setItem(this._prefix + 'list' + sid, str);
   },
-  signout:function(){
+  signout: function () {
     var id_to_delete = this.getSchoolID();
     localStorage.removeItem(this._prefix + 'schoolID');
     localStorage.removeItem(this._prefix + 'list' + id_to_delete)
@@ -48,7 +48,10 @@ Vue.component('login', {
     enterApp: function (e) {
       var _self = this;
       if (/\d{10}/.test(this.fakeId)) {
-        getListById(this.fakeId, function (result) {
+        getListById(this.fakeId, function (err, result) {
+          if (err) {
+            return;
+          }
           if (result.code === 0) {
             result.id = _self.fakeId;
             _self.$emit('success', result);
@@ -91,7 +94,7 @@ Vue.component('main-panel', {
 
   template: '#tpl-main-panel',
   props: [
-    'sid','list', 'today', 'tomorrow'
+    'sid', 'list', 'today', 'tomorrow'
   ],
   data: function () {
     var todayList = [],
@@ -100,12 +103,12 @@ Vue.component('main-panel', {
     this
       .list
       .forEach(function (el) {
-        el.thisWeek = (el.weekend.indexOf(_this.today.weekendPast) !== -1)
+        el.thisWeek = (el.weekend && (el.weekend.indexOf(_this.today.weekendPast) !== -1))
           ? true
           : false;
       })
 
-    return {tab: 'today', tableActive: false,isLoading:false}
+    return {tab: 'today', tableActive: false, isLoading: false}
   },
   computed: {
     todayList: function () {
@@ -114,7 +117,7 @@ Vue.component('main-panel', {
       this
         .list
         .forEach(function (el) {
-          if (el.weekend.indexOf(_this.today.weekendPast) !== -1 && el.day === _this.today.todayDay) {
+          if (el.weekend && el.weekend.indexOf(_this.today.weekendPast) !== -1 && el.day === _this.today.todayDay) {
             list.push(el)
           }
         })
@@ -126,7 +129,7 @@ Vue.component('main-panel', {
       this
         .list
         .forEach(function (el) {
-          if (el.weekend.indexOf(_this.tomorrow.weekendPast) !== -1 && el.day === _this.tomorrow.todayDay) {
+          if (el.weekend && el.weekend.indexOf(_this.tomorrow.weekendPast) !== -1 && el.day === _this.tomorrow.todayDay) {
             list.push(el)
           }
         })
@@ -137,46 +140,46 @@ Vue.component('main-panel', {
         hasWeekend: false,
         data: [
           [
-            {},
-            {},
-            {},
-            {},
-            {}, {}, {}
+            [],
+            [],
+            [],
+            [],
+            [], [], []
           ],
           [
-            {},
-            {},
-            {},
-            {},
-            {}, {}, {}
+            [],
+            [],
+            [],
+            [],
+            [], [], []
           ],
           [
-            {},
-            {},
-            {},
-            {},
-            {}, {}, {}
+            [],
+            [],
+            [],
+            [],
+            [], [], []
           ],
           [
-            {},
-            {},
-            {},
-            {},
-            {}, {}, {}
+            [],
+            [],
+            [],
+            [],
+            [], [], []
           ],
           [
-            {},
-            {},
-            {},
-            {},
-            {}, {}, {}
+            [],
+            [],
+            [],
+            [],
+            [], [], []
           ],
           [
-            {},
-            {},
-            {},
-            {},
-            {}, {}, {}
+            [],
+            [],
+            [],
+            [],
+            [], [], []
           ]
         ]
       };
@@ -187,6 +190,7 @@ Vue.component('main-panel', {
        * @returns {number}
        */
       function getRowIndex(str) {
+        if(!str && str!==0)return 0;
         if (/\d+/.test(str)) {
           return Math.floor(Number(str.substring(0, 1)) / 2)
         } else {
@@ -200,6 +204,7 @@ Vue.component('main-panel', {
        * @returns {number}
        */
       function getColIndex(num) {
+         if(!num && num!==0)return 0;
         return num == 0
           ? 6
           : num - 1;
@@ -208,12 +213,12 @@ Vue.component('main-panel', {
       this
         .list
         .forEach(function (el) {
-          var rowIndex = getRowIndex(el.whichClass.substring(1, 3));
+          var rowIndex = getRowIndex(el.whichClass && el.whichClass.substring(1, 3));
           var colIndex = getColIndex(el.day);
           if (/6|0/.test(el.day)) {
             ret.hasWeekend = true;
           }
-          ret.data[rowIndex][colIndex] = el;
+          ret.data[rowIndex][colIndex].push(el);
         })
 
       return ret;
@@ -229,16 +234,20 @@ Vue.component('main-panel', {
     navTo: function (tab) {
       this.tab = tab;
     },
-    updateList:function(){
+    updateList: function () {
 
       var _this = this;
       this.isLoading = true;
-      getListById(this.sid,function(result){
-          _this.$emit('success', result);
+      getListById(this.sid, function (err, result) {
+        if (err) {
           _this.isLoading = false;
+          return;
+        }
+        _this.$emit('success', result);
+        _this.isLoading = false;
       })
     },
-    signout:function(){
+    signout: function () {
       this.$emit('signout');
     }
   }
@@ -252,7 +261,7 @@ var app = new Vue({
   el: '#app',
   data: {
     id: store_id,
-    originList: store_list||[],
+    originList: store_list || [],
     currentView: "",
     todayOption: {},
     tomorrowOption: {}
@@ -292,15 +301,32 @@ var app = new Vue({
       this.todayOption = doTimeCount(d),
       this.tomorrowOption = doTimeCount(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1))
     },
-    signout:function(){
+    signout: function () {
       this.id = undefined;
       this.originList = [];
       this.currentView = 'login';
       storeTool.signout();
     }
-    
+
   }
 })
+
+/**
+ * 新的一天更新日期
+ */
+app.$on('DayDown', function () {
+  app.newDay()
+})
+setInterval((function () {
+  var current_day = (new Date().getDay())
+  return function () {
+    var newDay = (new Date()).getDay();
+    if (newDay != current_day) {
+      app.$emit('DayDown')
+    }
+    console.log('哔')
+  }
+})(), 10000)
 
 /**
    *  Date.getDay() 星期天是0
@@ -325,14 +351,39 @@ function doTimeCount(thatDay) {
 }
 function getListById(sid, callback) {
   var xhr = new XMLHttpRequest();
-  xhr.open('get', './api/kebiao/stu/' + sid);
+  xhr.open('get', './api/kebiao/stu/' + sid + '?t=' + Date.now());
   xhr.responseType = 'json';
   xhr.onload = function (e) {
-    callback(xhr.response)
+    callback(null, xhr.response)
   }
   xhr.onerror = function (e) {
     console.log(e)
     alert("发送失败！")
+    callback(e);
   }
   xhr.send();
+}
+
+if ('serviceWorker' in navigator) {
+  navigator
+    .serviceWorker
+    .register('./sw.js')
+    .then(function (reg) {
+      console.log(reg)
+      reg.active.onmessage = function (e) {
+        console.log(e.data)
+      }
+      reg.showNotification("Hellow!")
+
+      if (Notification.permission == 'default') {
+
+        Notification
+          .requestPermission()
+          .then(function (result) {
+            console.log(result);
+            reg.showNotification("Hellow!")
+          });
+      }
+
+    })
 }

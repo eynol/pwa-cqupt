@@ -173,22 +173,29 @@ tableTimes = '上午8:00至9:40','上午10:05-11:45','下午2:00-3:40','下午4:
     tr:nth-child(2)
     tr:nth-child(4)
       border-bottom: 2px solid pink
+    tr:before
+      display: table-cell;
+      vertical-align: middle
     td
       border:1px solid rgba(0,0,0,.12)
-      &.thisWeek
-        background-color: rgba(11, 253, 15, 0.43);
+      min-width: 6em;
+
+      
 
 table.noWeekend
   th:nth-child(7)
   th:nth-child(8)
     display: none
   tr
+    td:nth-child(6)
     td:nth-child(7)
-    td:nth-child(8)
       display: none
   
 
 .table-cell
+  display: block
+  &.thisWeek
+        background-color: rgba(11, 253, 15, 0.43);
   p
     margin: 0
 .nav-bar

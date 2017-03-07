@@ -62,8 +62,8 @@ block content
                   th 周日
               tbody
                 tr(v-for="row in table.data")
-                  td(v-for="item in row" v-bind:class="{thisWeek:item.thisWeek}")
-                    .table-cell
+                  td(v-for="block in row")
+                    .table-cell(v-for="item in block"  v-bind:class="{thisWeek:item.thisWeek}")
                       p {{item.className}}
                       p {{item.who}}
                       p {{item.where}}

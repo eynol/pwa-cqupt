@@ -202,19 +202,27 @@ body {
 .table-all_class tbody tr:nth-child(4) {
   border-bottom: 2px solid #ffc0cb;
 }
+.table-all_class tbody tr:before {
+  display: table-cell;
+  vertical-align: middle;
+}
 .table-all_class tbody td {
   border: 1px solid rgba(0,0,0,0.12);
-}
-.table-all_class tbody td.thisWeek {
-  background-color: rgba(11,253,15,0.43);
+  min-width: 6em;
 }
 table.noWeekend th:nth-child(7),
 table.noWeekend th:nth-child(8) {
   display: none;
 }
-table.noWeekend tr td:nth-child(7),
-table.noWeekend tr td:nth-child(8) {
+table.noWeekend tr td:nth-child(6),
+table.noWeekend tr td:nth-child(7) {
   display: none;
+}
+.table-cell {
+  display: block;
+}
+.table-cell.thisWeek {
+  background-color: rgba(11,253,15,0.43);
 }
 .table-cell p {
   margin: 0;

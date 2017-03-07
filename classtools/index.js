@@ -76,7 +76,7 @@ function getWeekends(when){
 
   var oddWeek = (when.indexOf('单周')!==-1)?true:false;
   var evenWeek = (when.indexOf('双周')!==-1)?true:false;
-  console.log(oddWeek,evenWeek);
+
   var ret = [];
 
   when.split(',').forEach(function(item){

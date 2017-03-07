@@ -25,10 +25,19 @@ var storeTool = {
     }
     localStorage.setItem(this._prefix + 'list' + sid, str);
   },
+  getLastRequestTime: function () {
+    return localStorage.getItem(this._prefix + 'lastRequestTime');
+  },
+
+  setLastRequestTime: function (time_str) {
+    return localStorage.setItem(this._prefix + 'lastRequestTime', time_str);
+  },
+
   signout: function () {
     var id_to_delete = this.getSchoolID();
     localStorage.removeItem(this._prefix + 'schoolID');
-    localStorage.removeItem(this._prefix + 'list' + id_to_delete)
+    localStorage.removeItem(this._prefix + 'list' + id_to_delete);
+    localStorage.removeItem(this._prefix + 'lastRequestTime');
   }
 }
 
@@ -94,7 +103,7 @@ Vue.component('main-panel', {
 
   template: '#tpl-main-panel',
   props: [
-    'sid', 'list', 'today', 'tomorrow'
+    'sid', 'list', 'today', 'tomorrow', 'lastUpdateTime'
   ],
   data: function () {
     var todayList = [],
@@ -111,6 +120,9 @@ Vue.component('main-panel', {
     return {tab: 'today', tableActive: false, isLoading: false}
   },
   computed: {
+    updateTime: function () {
+      return new Date(Number(this.lastUpdateTime));
+    },
     todayList: function () {
       var _this = this;
       var list = [];
@@ -144,42 +156,54 @@ Vue.component('main-panel', {
             [],
             [],
             [],
-            [], [], []
+            [],
+            [],
+            []
           ],
           [
             [],
             [],
             [],
             [],
-            [], [], []
+            [],
+            [],
+            []
           ],
           [
             [],
             [],
             [],
             [],
-            [], [], []
+            [],
+            [],
+            []
           ],
           [
             [],
             [],
             [],
             [],
-            [], [], []
+            [],
+            [],
+            []
           ],
           [
             [],
             [],
             [],
             [],
-            [], [], []
+            [],
+            [],
+            []
           ],
           [
             [],
             [],
             [],
             [],
-            [], [], []
+            [],
+            [],
+            []
           ]
         ]
       };
@@ -190,7 +214,8 @@ Vue.component('main-panel', {
        * @returns {number}
        */
       function getRowIndex(str) {
-        if(!str && str!==0)return 0;
+        if (!str && str !== 0) 
+          return 0;
         if (/\d+/.test(str)) {
           return Math.floor(Number(str.substring(0, 1)) / 2)
         } else {
@@ -204,7 +229,8 @@ Vue.component('main-panel', {
        * @returns {number}
        */
       function getColIndex(num) {
-         if(!num && num!==0)return 0;
+        if (!num && num !== 0) 
+          return 0;
         return num == 0
           ? 6
           : num - 1;
@@ -218,7 +244,9 @@ Vue.component('main-panel', {
           if (/6|0/.test(el.day)) {
             ret.hasWeekend = true;
           }
-          ret.data[rowIndex][colIndex].push(el);
+          ret
+            .data[rowIndex][colIndex]
+            .push(el);
         })
 
       return ret;
@@ -256,7 +284,7 @@ Vue.component('main-panel', {
 
 var store_id = storeTool.getSchoolID();
 var store_list = storeTool.getListById(store_id);
-
+var lastRequestTime = storeTool.getLastRequestTime();
 var app = new Vue({
   el: '#app',
   data: {
@@ -264,7 +292,8 @@ var app = new Vue({
     originList: store_list || [],
     currentView: "",
     todayOption: {},
-    tomorrowOption: {}
+    tomorrowOption: {},
+    lastRequestTime: lastRequestTime
   },
   beforeMount: function () {
     if (this.id) {
@@ -290,10 +319,12 @@ var app = new Vue({
       console.log("receive id:" + result.id);
 
       this.id = Number(result.id);
+      this.lastRequestTime = result.time;
       this.originList = result.list;
       this.currentView = 'main-panel';
 
       storeTool.setSchoolID(this.id);
+      storeTool.setLastRequestTime(result.time);
       storeTool.setListById(this.id, result.list);
     },
     newDay: function () {
@@ -373,15 +404,24 @@ if ('serviceWorker' in navigator) {
       reg.active.onmessage = function (e) {
         console.log(e.data)
       }
-      reg.showNotification("Hellow!")
-
+    reg.showNotification("3302", {
+              
+              body: "软件工程导论 张西华，\n hell",
+              data:"nice work",
+              tag: "yes",
+              icon:'./cykb192.png',
+              vibrate: [200, 100, 200, 100, 200, 100, 200],
+              sticky:true,
+              requireInteraction:true,
+              actions:[{action:"dismiss",title:"知道了"},{action:"arived",title:"我到教室了"}]
+            })
       if (Notification.permission == 'default') {
 
         Notification
           .requestPermission()
           .then(function (result) {
             console.log(result);
-            reg.showNotification("Hellow!")
+           
           });
       }
 

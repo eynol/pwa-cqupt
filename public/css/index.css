@@ -177,8 +177,14 @@ body {
 /***
 *              Table
 */
+.update-time {
+  color: #afafaf;
+}
 .table-all_class {
   border-collapse: collapse;
+  overflow: auto;
+  width: 100%;
+  display: block;
 }
 .table-all_class tbody tr:nth-child(1):before {
   content: '上午8:00至9:40';
@@ -223,6 +229,7 @@ table.noWeekend tr td:nth-child(7) {
 }
 .table-cell.thisWeek {
   background-color: rgba(11,253,15,0.43);
+  animation: blink 4s infinite;
 }
 .table-cell p {
   margin: 0;
@@ -243,6 +250,50 @@ table.noWeekend tr td:nth-child(7) {
 }
 .fade-leave-active {
   animation: fade-out 0.5s;
+}
+@-moz-keyframes blink {
+  0% {
+    background-color: #05e298;
+  }
+  50% {
+    background-color: #fff;
+  }
+  100% {
+    background-color: #05e298;
+  }
+}
+@-webkit-keyframes blink {
+  0% {
+    background-color: #05e298;
+  }
+  50% {
+    background-color: #fff;
+  }
+  100% {
+    background-color: #05e298;
+  }
+}
+@-o-keyframes blink {
+  0% {
+    background-color: #05e298;
+  }
+  50% {
+    background-color: #fff;
+  }
+  100% {
+    background-color: #05e298;
+  }
+}
+@keyframes blink {
+  0% {
+    background-color: #05e298;
+  }
+  50% {
+    background-color: #fff;
+  }
+  100% {
+    background-color: #05e298;
+  }
 }
 @-moz-keyframes fade-in {
   0% {

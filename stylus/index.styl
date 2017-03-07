@@ -159,12 +159,17 @@ body
 /***
 *              Table
 */
+.update-time
+  color  #afafaf
 
 tableNth = 1,2,3,4,5,6
 tableTimes = '上午8:00至9:40','上午10:05-11:45','下午2:00-3:40','下午4:05-5:45','晚上7:00-8:40','晚上9:05-10:45';
 
 .table-all_class
   border-collapse: collapse
+  overflow: auto;
+  width: 100%;
+  display: block;
   tbody
     for nth, i in tableNth
       tr:nth-child({nth})
@@ -196,8 +201,16 @@ table.noWeekend
   display: block
   &.thisWeek
         background-color: rgba(11, 253, 15, 0.43);
+        animation: blink 4s infinite
   p
     margin: 0
+@keyframes blink
+  0%
+    background-color: #05e298;;
+  50% 
+    background-color white
+  100%  
+    background-color: #05e298;;
 .nav-bar
   height: 40px;
   position: relative

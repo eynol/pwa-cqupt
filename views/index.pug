@@ -3,7 +3,13 @@ extends layout
 block content
   #app
     transition(name="fade")
-      component(v-bind:is='currentView' v-bind:sid="id" v-bind:list="originList" v-bind:today="todayOption" v-bind:tomorrow="tomorrowOption" v-on:success="login" v-on:signout="signout")        
+      component(v-bind:is='currentView' v-bind=`{
+          sid:id,
+          list:originList,
+          lastUpdateTime:lastRequestTime,
+          today:todayOption, 
+        tomorrow:tomorrowOption
+      }`  v-on:success="login" v-on:signout="signout")        
   
   script(type="text/x-template" id="tpl-login")
     .box.login
@@ -47,7 +53,8 @@ block content
                     p.class-id {{item.classID}}
             .content_action
               a(href="javascript:;" v-on:click="show_table").btn.primary 全部课表
-          .content.class-table(v-bind:class="{ active: tableActive }")
+              p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
+          .content.class-table(v-bind:class="{ active: tableActive }" )
             h1.center.aligned  今天是第{{today.weekendPast}}周
             table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class.center.aligned 
               thead
@@ -71,6 +78,7 @@ block content
 
             .content_action
               a(href="javascript:;" v-on:click="hide_table").btn.primary 单日课表
+              p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
           .content.setting-content(v-bind:class="{active: tab ==='setting'}")
 
             p.center.aligned 

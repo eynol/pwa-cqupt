@@ -191,7 +191,6 @@ Vue.component('content-table', {
   props: [
     'list', 'today', 'lastUpdateTime'
   ],
-
   computed: {
     updateTime: function () {
       return new Date(Number(this.lastUpdateTime));
@@ -410,10 +409,10 @@ var app = new Vue({
       var s_id = result.id;
       var s_list = result.list;
       var lastRequestTime = result.time;
-
+      console.log(lastRequestTime);
       this.id = s_id;
       this.originList = s_list || [];
-      this.lastUpdateTime = lastRequestTime;
+      this.lastRequestTime = lastRequestTime;
       this.currentView = 'main-panel'
     } else {
       console.log(this);
@@ -572,6 +571,7 @@ if ('serviceWorker' in navigator) {
       console.log(registration)
       console.log(navigator.serviceWorker)
       registration.active.onmessage = function (e) {
+        console.log("OnMessage")
         console.log(e.data)
       }
 

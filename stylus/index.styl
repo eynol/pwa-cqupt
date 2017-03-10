@@ -296,6 +296,7 @@ table.noWeekend
 
  
 
+
 .fade-enter-active {
   animation: fade-in .5s;
 }
@@ -322,3 +323,32 @@ table.noWeekend
     opacity: 0
   }
 }
+
+
+ .slide-down-enter-active{
+   animation: slide-in .5s;
+ }
+
+ .slide-down-leave-active{
+    animation: slide-out .5s;
+ }
+
+@keyframes slide-in
+  0% {
+    transform: translateY(50%)
+    opacity: 0
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1
+  }
+
+@keyframes slide-out
+  0% {
+    transform: translateY(0)
+    opacity: 1
+  }
+  100% {
+    transform: translateY(-50%);
+    opacity: 0
+  }

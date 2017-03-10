@@ -9,8 +9,7 @@ block content
           lastUpdateTime:lastRequestTime,
           today:todayOption, 
         tomorrow:tomorrowOption
-      }`  v-on:signout="signout")
-        slot
+      }`  )
           
   script(type="text/x-template" id="tpl-login")
     .box.login
@@ -109,13 +108,15 @@ block content
     .main-panel
       .container-wrapper
         .container
-          transition(name="fade")
-            component(v-bind:is="tab" v-bind=`{
-                list:list,
-                today:today,
-                tomorrow:tomorrow, 
-                lastUpdateTime:lastUpdateTime
-            }`  )
+          transition(name="slide-down")
+            keep-alive
+              component(v-bind:is="tab" v-bind=`{
+                  list:list,
+                  today:today,
+                  tomorrow:tomorrow, 
+                  lastUpdateTime:lastUpdateTime,
+                  sid:sid
+              }`  )
       .nav-bar
         a(href="javascript:;" v-on:click="navTo('day')")
           i.icon.day(v-bind:class="{active: tab ==='day'}")

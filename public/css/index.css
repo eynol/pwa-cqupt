@@ -309,6 +309,12 @@ table.noWeekend tr td:nth-child(7) {
 .fade-leave-active {
   animation: fade-out 0.5s;
 }
+.slide-down-enter-active {
+  animation: slide-in 0.5s;
+}
+.slide-down-leave-active {
+  animation: slide-out 0.5s;
+}
 @-moz-keyframes activeClass {
   0%, 100% {
     box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
@@ -462,6 +468,86 @@ table.noWeekend tr td:nth-child(7) {
   }
   100% {
     transform: translateX(-50%);
+    opacity: 0;
+  }
+}
+@-moz-keyframes slide-in {
+  0% {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@-webkit-keyframes slide-in {
+  0% {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@-o-keyframes slide-in {
+  0% {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes slide-in {
+  0% {
+    transform: translateY(50%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@-moz-keyframes slide-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+}
+@-webkit-keyframes slide-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+}
+@-o-keyframes slide-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%);
+    opacity: 0;
+  }
+}
+@keyframes slide-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%);
     opacity: 0;
   }
 }

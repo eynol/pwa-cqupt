@@ -6,15 +6,22 @@ body {
   margin: 0;
   padding: 0;
   color: #444;
+  -webkit-overflow-scrolling: touch;
 }
 * {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 /** 
 *             Elements
 */
 .center.aligned {
   text-align: center;
+}
+.app-title h1 {
+  text-align: center;
+  color: #016946;
+  font-weight: 300;
 }
 .btn {
   display: inline-block;
@@ -34,13 +41,16 @@ body {
 }
 .btn.primary {
   color: #fff;
-  background-color: #13eab2;
+  background: linear-gradient(-135deg, #37bc98 0%, #a0d468 100%);
   box-shadow: 0 3px 3px -1px rgba(0,138,102,0.53);
 }
 .btn.danger {
   color: #fff;
-  background-color: #f76d68;
+  background: linear-gradient(-135deg, #e4352e 0%, #ff7070 100%);
   box-shadow: 0 3px 3px -1px rgba(255,41,41,0.53);
+}
+p.danger {
+  color: #f76d68;
 }
 .btn.isLoading:before {
   content: url("../icon/loading.gif");
@@ -66,6 +76,12 @@ body {
 }
 .icon.setting.active:before {
   background-image: url("../icon/setting-active.svg");
+}
+.icon.day:before {
+  background-image: url("../icon/day.svg");
+}
+.icon.day.active:before {
+  background-image: url("../icon/day-active.svg");
 }
 .hidden {
   display: none !important;
@@ -103,6 +119,9 @@ body {
 /** 
 *            App
 */
+.main-panel {
+  background: linear-gradient(-135deg, #fff 0%, #ececec 100%);
+}
 .main-panel,
 #app {
   display: flex;
@@ -129,6 +148,7 @@ body {
   text-align: center;
 }
 .content .card {
+  position: relative;
   margin: 20px;
   text-align: left;
   padding: 10px 20px;
@@ -138,6 +158,13 @@ body {
 }
 .content .card.active {
   animation: activeClass 2s infinite;
+}
+.content .card.active:before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: flash 2s infinite;
 }
 .content .card-aside {
   float: left;
@@ -150,15 +177,15 @@ body {
 .content .card-main {
   display: table-cell;
   position: relative;
-  padding-left: 3em;
+  padding-left: 2.4em;
 }
 .content .card-main:before {
   content: '';
   display: inline-block;
   position: absolute;
-  border-right: 2px dashed rgba(0,0,0,0.32);
+  border-right: 1px solid rgba(0,0,0,0.12);
   width: 1px;
-  left: 1.5em;
+  left: 1.2em;
   transform: translateX(-1px);
   height: 100%;
 }
@@ -186,23 +213,22 @@ body {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: #f1f1f1;
   transform-style: flat;
-  transform: translateX(100%);
   transition: all 0.3s ease-in-out;
-  opacity: 0;
+  opacity: 1;
 }
 .content.active {
-  transform: translateX(0);
   opacity: 1;
+  z-index: 5;
 }
 .content_today,
 .content_tomorrow {
   text-align: center;
 }
-.setting-content p.center.aligned {
+.setting-content p {
   max-width: 768px;
   margin: 1.3em auto;
+  text-align: center;
 }
 .setting-content .pd1em {
   padding: 1.7em;
@@ -218,7 +244,6 @@ body {
   overflow: auto;
   width: 100%;
   display: block;
-  background-color: #fff;
 }
 .table-all_class tbody tr:nth-child(1):before {
   content: '上午8:00至9:40';
@@ -274,7 +299,6 @@ table.noWeekend tr td:nth-child(7) {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  border-top: 1px solid rgba(0,0,0,0.09);
 }
 .nav-bar a {
   text-decoration: none;
@@ -322,7 +346,7 @@ table.noWeekend tr td:nth-child(7) {
     background-color: #05e298;
   }
   50% {
-    background-color: #fff;
+    background-color: transparent;
   }
   100% {
     background-color: #05e298;
@@ -333,7 +357,7 @@ table.noWeekend tr td:nth-child(7) {
     background-color: #05e298;
   }
   50% {
-    background-color: #fff;
+    background-color: transparent;
   }
   100% {
     background-color: #05e298;
@@ -344,7 +368,7 @@ table.noWeekend tr td:nth-child(7) {
     background-color: #05e298;
   }
   50% {
-    background-color: #fff;
+    background-color: transparent;
   }
   100% {
     background-color: #05e298;
@@ -355,7 +379,7 @@ table.noWeekend tr td:nth-child(7) {
     background-color: #05e298;
   }
   50% {
-    background-color: #fff;
+    background-color: transparent;
   }
   100% {
     background-color: #05e298;

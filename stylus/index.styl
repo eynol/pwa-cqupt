@@ -5,14 +5,24 @@ body
   margin: 0
   padding: 0;
   color #444
+  -webkit-overflow-scrolling:touch;
 *
   box-sizing: border-box
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+
+
 
 /** 
 *             Elements
 */
 .center.aligned
   text-align: center
+.app-title
+  h1
+    text-align: center
+    color #016946
+    font-weight: 300
 
 .btn
   display: inline-block;
@@ -29,13 +39,17 @@ body
     transform: translateY(2px)
 .btn.primary
   color:white
-  background-color: #13eab2
+  //background-color: #13eab2
+  background: linear-gradient(-135deg, #37BC98 0%, #A0D468 100%)
   box-shadow: 0 3px 3px -1px rgba(0, 138, 102, 0.53)
 .btn.danger
   color:white
-  background-color: #f76d68;
+  //background-color: #f76d68;
+  background: linear-gradient(-135deg, #e4352e 0%, #ff7070 100%)
   box-shadow: 0 3px 3px -1px rgba(255, 41, 41, 0.53);
 
+p.danger
+  color #f76d68
 .btn.isLoading
   &:before
     content url(../icon/loading.gif)
@@ -60,6 +74,11 @@ body
   background-image: url(../icon/setting.svg)
 .icon.setting.active:before
   background-image: url(../icon/setting-active.svg)
+  
+.icon.day:before
+  background-image: url(../icon/day.svg)
+.icon.day.active:before
+  background-image: url(../icon/day-active.svg)
   
 
 
@@ -98,6 +117,15 @@ body
 *            App
 */
 .main-panel
+  background: linear-gradient(-135deg, #fff 0%, #ececec 100%)
+
+
+
+
+
+
+
+.main-panel
 #app
   display: flex
   height: 100%
@@ -118,6 +146,7 @@ body
   .notify
     text-align: center
   .card
+    position: relative
     margin: 20px
     text-align:  left
     padding: 10px 20px
@@ -126,6 +155,12 @@ body
     box-shadow: 0 3px 12px -3px rgba(0,0,0,0.23)
     &.active
       animation: activeClass 2s infinite
+      &:before
+        content ''
+        display: block;
+        width: 100%
+        height: 100%;
+        animation: flash 2s  infinite
   .card-aside
     float: left
     color: #444
@@ -135,14 +170,14 @@ body
   .card-main
     display: table-cell
     position: relative
-    padding-left:3em
+    padding-left:2.4em
     &:before
       content: '';
       display: inline-block;
       position: absolute;
-      border-right: 2px dashed rgba(0,0,0,0.32);
+      border-right: 1px solid rgba(0,0,0,0.12);
       width: 1px;
-      left: 1.5em;
+      left: 1.2em;
       transform: translateX(-1px)
       height: 100%;
     p
@@ -154,6 +189,7 @@ body
 .content_action   
   text-align: center
   padding: 2em 0 3em
+ 
 
 @keyframes activeClass 
   0%
@@ -172,21 +208,24 @@ body
   width: 100%
   height: 100%;
   overflow: auto;
-  background-color: #f1f1f1;
+  //background-color: #f1f1f1;
+  //background: linear-gradient(1deg, #f1f1f1 0%, #e5fff0 100%)
   transform-style: flat
-  transform: translateX(100%);
+  //transform: translateX(50%);
   transition: all 0.3s ease-in-out
-  opacity: 0
-.content.active
-  transform: translateX(0);
   opacity: 1
+.content.active
+  //transform: translateX(0);
+  opacity: 1
+  z-index: 5
 .content_today
 .content_tomorrow
   text-align: center
 .setting-content
-  p.center.aligned
+  p
     max-width: 768px;
     margin:1.3em auto 
+    text-align: center
   .pd1em
     padding: 1.7em
 /***
@@ -203,7 +242,6 @@ tableTimes = '上午8:00至9:40','上午10:05至11:45','下午2:00至3:40','下�
   overflow: auto;
   width: 100%;
   display: block;
-  background-color: white
   tbody
     for nth, i in tableNth
       tr:nth-child({nth})
@@ -242,7 +280,7 @@ table.noWeekend
   0%
     background-color: #05e298;;
   50% 
-    background-color white
+    background-color transparent
   100%  
     background-color: #05e298;;
 .nav-bar
@@ -251,7 +289,7 @@ table.noWeekend
   display: flex
   justify-content: space-around
   align-items: center
-  border-top:1px solid rgba(0, 0, 0, 0.09)
+  //border-top:1px solid rgba(0, 0, 0, 0.09)
   a
     text-decoration: none;
 

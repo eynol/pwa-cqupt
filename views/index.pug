@@ -9,8 +9,9 @@ block content
           lastUpdateTime:lastRequestTime,
           today:todayOption, 
         tomorrow:tomorrowOption
-      }`  v-on:success="login" v-on:signout="signout")        
-  
+      }`  v-on:signout="signout")
+        slot
+          
   script(type="text/x-template" id="tpl-login")
     .box.login
       .form
@@ -18,88 +19,108 @@ block content
         p 
           input(type="text" v-model="fakeId" maxlength='10' v-on:keydown="fakeIdKeyDown" placeholder="请输入您的学号") 
         p
-          a(href="javascript:;"  v-on:click="enterApp").btn 进入应用
+          a(href="javascript:;"  v-on:click="enterApp").primary.btn 进入应用
+  script(type="text/x-template" id="tpl-content-day")
+    .content
+      .app-title
+        h1 重邮课表
+      .content_today
+        .panel
+          .notify(v-if="todayList.length!==0")
+            h1 今
+            p {{today.todayMonth}}月{{today.todayDate}}日 周{{today.todayWeekday}}
+          .card(v-for="item in todayList" v-bind:class="{ active: item.activated }" )
+            .card-aside
+              span.room {{item.where}}
+              br
+              span.order {{item.whichClass}}
+            .card-main
+              p.class-name {{item.className}}
+              p.who {{item.who}}
+              p.class-id {{item.classID}}
+          
+      .content_tomorrow
+        .panel
+          .notify(v-if="tomorrowList.length!==0")
+            h1 翌日
+            p {{today.todayMonth}}月{{today.todayDate}}日 周{{today.todayWeekday}}
+          .card(v-for="item in tomorrowList")
+            .card-aside
+              span.room {{item.where}}
+              br
+              span.order {{item.whichClass}}
+            .card-main
+              p.class-name {{item.className}}
+              p.who {{item.who}}
+              p.class-id {{item.classID}}
+      .content_action
+        p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
+  script(type="text/x-template" id="tpl-content-table")
+    .content.class-table
+      h1.center.aligned  今天是第{{today.weekendPast}}周·周{{today.todayWeekday}}
+      p.center.aligned * 点亮的课程是本周的课表
+      table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class.center.aligned 
+        thead
+          tr
+            th 时间
+            th 周一
+            th 周二
+            th 周三
+            th 周四
+            th 周五
+            th 周六
+            th 周日
+        tbody
+          tr(v-for="row in table.data")
+            td(v-for="block in row")
+              .table-cell(v-for="item in block"  v-bind:class="{thisWeek:item.thisWeek}")
+                p {{item.className}}
+                p {{item.who}}
+                p {{item.where}}
+                p {{item.when && item.when.substring(8)}}
+
+      .content_action
+        p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
+  script(type="text/x-template" id="tpl-content-setting")
+    .content.setting-content
+      table
+        tr
+          th 提前20分钟提醒
+          td 
+            input(type="checkbox" value="before20")
+        tr
+          th 提前5分钟提醒
+      p   
+        a(href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}").btn.primary 更新课表
+      p 
+        a(href="javascript:;" v-on:click="signout").btn.danger 注销
+      br
+      p.danger.pd1em.
+        注意：数据来自外网的教务处网站，可能有误，请以教务在线上的课表为准。
+      br
+      p.pd1em.
+        本应用采用渐进式Web应用开发，可以添加快捷方式到桌面作为为本地应用使用。
+        目前只有Android系统上的google浏览器和火狐浏览器支持该技术，苹果五年计划中提到可能会支持。<br>
+        请在这两个浏览器中打开本网页，然后在浏览器的「选项」中找到「添加至主屏幕」，然后就可以像原生应用一样使用本应用了。
+      p  GitHub 地址
+        a(href="https://github.com/vankai/pwa-cqupt" target="_blank") 点我前往
+      p  反馈可以发送邮件到：mr.taokai@foxmail.com
   script(type="text/x-template" id="tpl-main-panel")
     .main-panel
       .container-wrapper
         .container
-          .content.active
-            .content_today
-              .panel
-                .notify(v-if="todayList.length!==0")
-                  h1 今日有课
-                .card(v-for="item in todayList" v-bind:class="{ active: item.activated }" )
-                  .card-aside
-                    span.room {{item.where}}
-                    br
-                    span.order {{item.whichClass}}
-                  .card-main
-                    p.class-name {{item.className}}
-                    p.who {{item.who}}
-                    p.class-id {{item.classID}}
-                
-            .content_tomorrow
-              .panel
-                .notify(v-if="tomorrowList.length!==0")
-                  h1 明日有课
-                .card(v-for="item in tomorrowList")
-                  .card-aside
-                    span.room {{item.where}}
-                    br
-                    span.order {{item.whichClass}}
-                  .card-main
-                    p.class-name {{item.className}}
-                    p.who {{item.who}}
-                    p.class-id {{item.classID}}
-            .content_action
-              a(href="javascript:;" v-on:click="show_table").btn.primary 全部课表
-              p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
-          .content.class-table(v-bind:class="{ active: tableActive }" )
-            h1.center.aligned  今天是第{{today.weekendPast}}周
-            p.center.aligned * 点亮的课程是本周的课表
-            table(v-bind:class="{noWeekend:table.hasWeekend === false}").table-all_class.center.aligned 
-              thead
-                tr
-                  th 时间
-                  th 周一
-                  th 周二
-                  th 周三
-                  th 周四
-                  th 周五
-                  th 周六
-                  th 周日
-              tbody
-                tr(v-for="row in table.data")
-                  td(v-for="block in row")
-                    .table-cell(v-for="item in block"  v-bind:class="{thisWeek:item.thisWeek}")
-                      p {{item.className}}
-                      p {{item.who}}
-                      p {{item.where}}
-                      p {{item.when && item.when.substring(8)}}
-
-            .content_action
-              a(href="javascript:;" v-on:click="hide_table").btn.primary 单日课表
-              p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
-          .content.setting-content(v-bind:class="{active: tab ==='setting'}")
-
-            p.center.aligned 
-              a(href="javascript:;").btn.primary 开启上课提醒
-            p.center.aligned 
-              a(href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}").btn.primary 更新课表
-            p.center.aligned 
-              a(href="javascript:;" v-on:click="signout").btn.danger 注销
-            br
-            br
-            p.center.aligned.pd1em.
-              本应用采用渐进式Web应用开发，可以添加快捷方式到桌面作为为本地应用使用。<br>
-              目前只有Android系统上的google浏览器和火狐浏览器支持该技术，苹果五年计划中提到可能会支持。<br>
-              请在这两个浏览器中打开本网页，然后在「选项」中找到「添加至主屏幕」，然后你就可以像原生应用一样使用本应用了。
-            p.center.aligned  GitHub 地址
-              a(href="https://github.com/vankai/pwa-cqupt" target="_blank") 点我前往
-            p.center.aligned  反馈可以发送邮件到：mr.taokai@foxmail.com
+          transition(name="fade")
+            component(v-bind:is="tab" v-bind=`{
+                list:list,
+                today:today,
+                tomorrow:tomorrow, 
+                lastUpdateTime:lastUpdateTime
+            }`  )
       .nav-bar
-        a(href="javascript:;" v-on:click="navTo('today')")
-          i.icon.list(v-bind:class="{active: tab ==='today'}")
+        a(href="javascript:;" v-on:click="navTo('day')")
+          i.icon.day(v-bind:class="{active: tab ==='day'}")
+        a(href="javascript:;" v-on:click="navTo('week')")
+          i.icon.list(v-bind:class="{active: tab ==='week'}")
         a(href="javascript:;" v-on:click="navTo('setting')")
           i.icon.setting(v-bind:class="{active: tab ==='setting'}")
 

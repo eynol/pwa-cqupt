@@ -89,6 +89,12 @@ block content
             input(type="checkbox" value="before20")
         tr
           th 提前5分钟提醒
+          td 
+            input(type="checkbox" value="before20")
+        tr
+          th 测试
+          td 
+            a(href="javascript:;" v-on:click="pushtest").btn.primary 推送消息测试
       p   
         a(href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}").btn.primary 更新课表
       p 
@@ -126,5 +132,6 @@ block content
           i.icon.setting(v-bind:class="{active: tab ==='setting'}")
 
   script(src='./lib/vue/vue.js')
+  script(src="./js/util.js")
   script(src="./js/index.js")
   

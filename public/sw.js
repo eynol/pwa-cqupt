@@ -1,3 +1,6 @@
+importScripts('js/util.js')
+
+
 /*
  Copyright 2016 Google Inc. All Rights Reserved.
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -182,7 +185,7 @@ self.addEventListener('fetch', event => {
         if (cachedResponse) {
           return cachedResponse
         } else {
-          return new Response(200, '{nothing:"to find"}')
+          return Response.error()
         }
       }))
     }
@@ -206,6 +209,12 @@ self.addEventListener('notificationclick', function (event) {
   // clients.openWindow('/'); }));
 });
 
+self.addEventListener('message',function(e){
+  console.log(e);
+  e.source.postMessage("recived")
+  console.log('recive massage')
+})
+
 /**
  *   ShowNotifications
  */
@@ -225,6 +234,18 @@ setInterval(function () {
         .onsuccess = (e) => {
         config = e.target.result;
         //showNotification()
+        var list = user.list;
+        var timeOption = doTimeCount(new Date());
+
+        list= list.filter(function(el){
+            if(el.weekend.indexOf(timeOption.weekendPast)!=-1 && el.day == timeOption.todayDay){
+              return true;
+
+            }else{
+              return false;
+            }
+        });
+
       }
     }
   })
@@ -232,7 +253,8 @@ setInterval(function () {
 }, 6000)
 
 function showNotification(title, option) {
-  let default_option = Object.assign(option, {
+  let default_option = Object.assign( {
+    tag:"public",
     icon: ICON_PATH,
     vibrate: [
       500,
@@ -243,7 +265,7 @@ function showNotification(title, option) {
       700,
       1000
     ]
-  })
+  },option)
 
   return Notification
     .requestPermission()

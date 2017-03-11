@@ -27,7 +27,7 @@ block content
         .panel
           .notify(v-if="todayList.length!==0")
             h1 今
-            p {{today.todayMonth}}月{{today.todayDate}}日 周{{today.todayWeekday}}
+            p {{today.todayMonth+1}}月{{today.todayDate}}日 周{{today.todayWeekday}}
           .card(v-for="item in todayList" v-bind:class="{ active: item.activated }" )
             .card-aside
               span.room {{item.where}}
@@ -42,7 +42,7 @@ block content
         .panel
           .notify(v-if="tomorrowList.length!==0")
             h1 翌日
-            p {{today.todayMonth}}月{{today.todayDate}}日 周{{today.todayWeekday}}
+            p {{today.todayMonth+1}}月{{today.todayDate}}日 周{{today.todayWeekday}}
           .card(v-for="item in tomorrowList")
             .card-aside
               span.room {{item.where}}
@@ -52,8 +52,11 @@ block content
               p.class-name {{item.className}}
               p.who {{item.who}}
               p.class-id {{item.classID}}
+      .content_no_class(v-if="tomorrowList.length ==0 || todayList.length==0")
+        blockquote
+          p 能在一分钟左右做完的事情，就不要拖延，立即去完成。
       .content_action
-        p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
+        p.center.aligned.update-time 本地数据更新于<br>{{updateTime.toLocaleString()}}
   script(type="text/x-template" id="tpl-content-table")
     .content.class-table
       h1.center.aligned  今天是第{{today.weekendPast}}周·周{{today.todayWeekday}}
@@ -79,19 +82,28 @@ block content
                 p {{item.when && item.when.substring(8)}}
 
       .content_action
-        p.center.aligned.update-time 更新于{{updateTime.toLocaleString()}}
+        p.center.aligned.update-time 本地数据更新于<br>{{updateTime.toLocaleString()}}
   script(type="text/x-template" id="tpl-content-setting")
     .content.setting-content
       table
         tr
-          th 提前20分钟提醒
+          th 开启上课提醒
           td 
-            input(type="checkbox" value="before20")
-        tr
-          th 提前5分钟提醒
+            input(type="checkbox" v-model="config.show" )
+        tr(v-show="config.show")
+          th 提前
           td 
-            input(type="checkbox" value="before20")
-        tr
+            input(type="number" v-model="config.first" ) 
+            span 分钟提醒
+        tr(v-show="config.show")
+          th 第二次提醒
+          td 
+            input(type="number" v-model="config.second" )
+        tr(v-show="config.show")
+          th 第三次提醒
+          td 
+            input(type="number" v-model="config.third" )
+        tr(v-show="config.show")
           th 测试
           td 
             a(href="javascript:;" v-on:click="pushtest").btn.primary 推送消息测试
@@ -101,7 +113,7 @@ block content
         a(href="javascript:;" v-on:click="signout").btn.danger 注销
       br
       p.danger.pd1em.
-        注意：数据来自外网的教务处网站，可能有误，请以教务在线上的课表为准。
+        注意：数据来自外网的教务处网站，可能有误，请以教务在线上的课表为准。该应用是可以离线的，请在必要的时候更新数据。
       br
       p.pd1em.
         本应用采用渐进式Web应用开发，可以添加快捷方式到桌面作为为本地应用使用。

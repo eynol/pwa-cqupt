@@ -93,8 +93,9 @@ function doTimeCount(thatDay) {
   var dayPast = Math.floor(timeGap / (1000 * 60 * 60 * 24)) + 1;
   var weekendPast = Math.floor(dayPast / 7) + 1;
   var isoddWeek = (weekendPast % 2) === 1;
-
+  var id = ""+thatDay.getFullYear()+thatDay.getMonth()+thatDay.getDate();
   return {
+    id :id,
     timeGap: timeGap,
     dayPast: dayPast,
     weekendPast: weekendPast,

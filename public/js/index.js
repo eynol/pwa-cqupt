@@ -242,32 +242,64 @@ Vue.component('content-setting', {
   template: '#tpl-content-setting',
   props: ['sid'],
   data: function () {
-    return {isLoading: false}
+    return {
+      isLoading: false,
+      config: {
+        show: false,
+        first: 20,
+        second: 5,
+        third:0
+      }
+    }
+  },
+  created:function(){
+    this.$watch('config.show',function(a,b,c){
+      var _this = this;
+      if(a==true){
+        if(Notification.permission !=="granted"){
+          alert("请同意通知申请。")
+          Notification.requestPermission().then(function(result){
+            if(result!="granted"){
+              alert('无通知权限权限，无法开启.请清除本网站所有数据重试。');
+              _this.config.show = false;
+            }
+          })
+        }
+      }
+      return false;
+    });
   },
   methods: {
     updateList: function () {
 
       var _this = this;
-      this.isLoading = true;
+      //this.isLoading = true;
       getListById(this.sid, function (err, result) {
         if (err) {
-          _this.isLoading = false;
+          //_this.isLoading = false;
           return;
         }
         Listener.$emit('success-login', result);
-        _this.isLoading = false;
+        //_this.isLoading = false;
       }, {root: true})
     },
     signout: function () {
       Listener.$emit('signout');
     },
     pushtest: function () {
-      var sw = navigator.serviceWorker.controller;
-      sw.postMessage({"Hellow?":123,name:"jack"});
-      sw.onmessage = function(e){
-          console.log(e);
-          console.log("revice message from sw")
-      }
+
+      var mc = new MessageChannel();
+      navigator
+        .serviceWorker
+        .controller
+        .postMessage({
+          "Hellow?": 123,
+          name: "jack"
+        }, [mc.port2]);
+      mc.port1.onmessage = function (e) {
+        console.log(e);
+        console.log("revice message from sw")
+      };
     }
   }
 
@@ -400,6 +432,9 @@ var app = new Vue({
   }
 })
 
+/**
+ *  定时调整到下一天
+ */
 setInterval((function () {
   var current_day = (new Date().getDay());
 
@@ -414,7 +449,6 @@ setInterval((function () {
       }, 4);
       current_day = today_day;
     }
-    console.log('哔')
   }
 })(), 10000)
 
@@ -436,43 +470,15 @@ if ('serviceWorker' in navigator) {
     .serviceWorker
     .ready
     .then(function (registration) {
-      console.log(registration)
-      console.log(navigator.serviceWorker)
-      registration.active.onmessage = function (e) {
-        console.log("OnMessage")
-        console.log(e.data)
-      }
-
-      Notification
-        .requestPermission()
-        .then(function (result) {
-          console.log(result);
-
-        })
-      registration.showNotification("3302", {
-        body: "软件工程导论 张西华，\n hell",
-        data: "nice work",
-        tag: "yes",
-        icon: './cykb192.png',
-        vibrate: [
-          200,
-          100,
-          200,
-          100,
-          200,
-          100,
-          200
-        ],
-        actions: [
-          {
-            action: "dismiss",
-            title: "知道了"
-          }, {
-            action: "arived",
-            title: "我到教室了"
-          }
-        ]
-      })
+      // console.log(registration) console.log(navigator.serviceWorker)
+      // registration.active.onmessage = function (e) {   console.log("OnMessage")
+      // console.log(e.data) } Notification   .requestPermission()   .then(function
+      // (result) {     console.log(result);   })
+      // registration.showNotification("3302", {   body: "软件工程导论 张西华，\n hell",   data:
+      // "nice work",   tag: "yes",   icon: './cykb192.png',   vibrate: [     200,
+      // 100,     200,     100,     200,     100,     200   ],   actions: [     {
+      //  action: "dismiss",       title: "知道了"     }, {       action: "arived",
+      // title: "我到教室了"     }   ] })
 
     })
 

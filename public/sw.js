@@ -1,6 +1,5 @@
 importScripts('js/util.js')
 
-
 /*
  Copyright 2016 Google Inc. All Rights Reserved.
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -113,6 +112,7 @@ self.addEventListener('fetch', event => {
             .then(json => {
               console.log(json);
               if (json.code != 0) {
+                showNotification('更新课表失败!')
                 resolve(resp);
               } else {
 
@@ -127,6 +127,9 @@ self.addEventListener('fetch', event => {
                       cat
                         .put(json, NAME_CAT)
                         .onsuccess = () => {
+                        showNotification('更新课表成功!', {
+                          body: "学号为" + json.id
+                        })
                         resolve(resp);
                       }
                     } else {
@@ -195,10 +198,14 @@ self.addEventListener('fetch', event => {
 self.addEventListener('notificationclick', function (event) {
   console.log(event)
   console.log('On notification click: ', event.notification.tag);
-  if (event.action === 'arived') {
-    event
-      .notification
-      .close();
+  switch(event.action){
+    case "dismiss":{
+      
+    }
+    default:{
+      event.notification.close()
+      break;
+    }
   }
 
   // This looks to see if the current is already open and focuses if it is
@@ -209,53 +216,89 @@ self.addEventListener('notificationclick', function (event) {
   // clients.openWindow('/'); }));
 });
 
-self.addEventListener('message',function(e){
+self.addEventListener('message', function (e) {
   console.log(e);
-  e.source.postMessage("recived")
-  console.log('recive massage')
+  e
+    .ports[0]
+    .postMessage("recived in sw")
+    showNotification("test!")
+  console.log('recive massage in sw')
 })
 
 /**
- *   ShowNotifications
+ *   ShowNotifications；
+ *   current service worker can not response at a specific time ,only to set a timer;
  */
 setInterval(function () {
   getDB().then(db => {
-    let theCat = db.transaction([NAME_CAT], 'readonly').objectStore(NAME_CAT);
-
+    let theCat = db.transaction([NAME_CAT], 'readwrite').objectStore(NAME_CAT);
+    let currentTime = new Date();
     let user = {};
     let config = {};
-    console.log(this);
+    let today_list = [];
+    let timeOption = doTimeCount(currentTime);
+    let timeOptionID = timeOption.id;
+
     theCat
       .get(NAME_CAT)
       .onsuccess = (e) => {
       user = e.target.result;
+      if (!user) 
+        return false;
       theCat
-        .get('config')
+        .get('today')
         .onsuccess = (e) => {
-        config = e.target.result;
-        //showNotification()
-        var list = user.list;
-        var timeOption = doTimeCount(new Date());
+        let today = e.target.result;
 
-        list= list.filter(function(el){
-            if(el.weekend.indexOf(timeOption.weekendPast)!=-1 && el.day == timeOption.todayDay){
-              return true;
+        if (today && today.id == timeOptionID) {
+          today_list = today.list;
+        } else {
+          today_list = user
+            .list
+            .filter(function (el) {
+              if (el.weekend.indexOf(timeOption.weekendPast) != -1 && el.day == timeOption.todayDay) {
+                return true;
+              } else {
+                return false;
+              }
+            });
+          if (today_list.length == 0) 
+            return;
+          theCat[today
+              ? "put"
+              : "add"]({
+            id: timeOptionID,
+            list: today_list
+          }, 'today');
+        }
 
-            }else{
-              return false;
-            }
-        });
+        //保证today_list
+        if (today_list.length == 0) 
+          return;
+        
+        //今天没有课，就什么也不做；如果有课，继续执行
+        theCat
+          .get('config')
+          .onsuccess = (e) => {
+          config = e.target.result;
+          //showNotification()
 
+        }
       }
+
     }
   })
 
 }, 6000)
 
+function getUserList() {
+  return new Promise((resolve, reject) => {})
+}
+
 function showNotification(title, option) {
-  let default_option = Object.assign( {
-    tag:"public",
-    icon: ICON_PATH,
+  let default_option = Object.assign({
+    tag: "public",
+    icon: "./cykb192.png",
     vibrate: [
       500,
       700,
@@ -264,20 +307,22 @@ function showNotification(title, option) {
       1000,
       700,
       1000
-    ]
-  },option)
-
-  return Notification
-    .requestPermission()
-    .then(function (result) {
-      console.log(result);
-      if (result == 'granted') {
-        return registration.showNotification(title, option)
-      } else {
-        return Promise.reject(result)
+    ],
+    actions: [
+      {
+        action: "dismiss",
+        title: "知道了"
       }
-    })
-    .catch(result => {});
+    ]
+  }, option)
+
+  if (Notification.permission == 'granted') {
+    return registration.showNotification(title, default_option)
+  } else {
+    console.log("No permission")
+    return Promise.reject(result)
+  }
+
 }
 
 function uninstall() {

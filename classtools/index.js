@@ -54,6 +54,10 @@ function html2array(html) {
 
     //   decorate elements with some other parameters
     ret.forEach(function(el){
+      //they may give us a shit unicode string;\u65535
+      if(el.when.codePointAt(0)!=26143){
+        el.when = el.when.replace(/^\D*/,"星期")
+      }
       el.day = getDay(el.when.substring(2,3));
       el.whichClass =  el.when.substring(4,8);
       el.weekend = getWeekends(el.when.substring(8));

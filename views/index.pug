@@ -42,7 +42,7 @@ block content
         .panel
           .notify(v-if="tomorrowList.length!==0")
             h1 翌日
-            p {{today.todayMonth+1}}月{{today.todayDate}}日 周{{today.todayWeekday}}
+            p {{tomorrow.todayMonth+1}}月{{tomorrow.todayDate}}日 周{{tomorrow.todayWeekday}}
           .card(v-for="item in tomorrowList")
             .card-aside
               span.room {{item.where}}

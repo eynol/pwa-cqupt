@@ -25,10 +25,13 @@ const NAME_LIST_ALL = 'lists';
 const NAME_CAT = 'SchrodingerCat';
 
 const default_config = {
-  before20: false,
-  before5: false,
-  before0: true,
-  showNotification: false
+  show: false,
+  openFirst: false,
+  first: 20,
+  openSecond: false,
+  second: 5,
+  openThird: false,
+  third: 0
 }
 /**
  *
@@ -65,14 +68,17 @@ function onupgradeneeded(e) {
 // A list of local resources we always want to be cached.
 const PRECACHE_URLS = [
   './',
-  './css/index.css',
-  './js/index.js',
 
+  './css/index.css',
+  './js/util.js',
+  './js/index.js',
   './lib/vue/vue.js',
-  './icon/list-active.svg',
   './icon/list.svg',
-  './icon/setting-active.svg',
+  './icon/list-active.svg',
+  './icon/day.svg',
+  './icon/day-active.svg',
   './icon/setting.svg',
+  './icon/setting-active.svg',
   './cykb192.png'
 ];
 
@@ -83,6 +89,12 @@ self.addEventListener('install', event => {
   event.waitUntil(caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(self.skipWaiting()));
 });
 
+self.addEventListener('statechange', e => {
+  console.log("statechange", e);
+})
+self.addEventListener('updatefound', e => {
+  console.log('updatefound', e);
+})
 // The activate handler takes care of cleaning up old caches.
 self.addEventListener('activate', event => {
 
@@ -198,14 +210,16 @@ self.addEventListener('fetch', event => {
 self.addEventListener('notificationclick', function (event) {
   console.log(event)
   console.log('On notification click: ', event.notification.tag);
-  switch(event.action){
-    case "dismiss":{
-      
-    }
-    default:{
-      event.notification.close()
-      break;
-    }
+  switch (event.action) {
+    case "dismiss":
+      {}
+    default:
+      {
+        event
+          .notification
+          .close()
+        break;
+      }
   }
 
   // This looks to see if the current is already open and focuses if it is
@@ -218,11 +232,46 @@ self.addEventListener('notificationclick', function (event) {
 
 self.addEventListener('message', function (e) {
   console.log(e);
-  e
-    .ports[0]
-    .postMessage("recived in sw")
-    showNotification("test!")
-  console.log('recive massage in sw')
+  switch (e.data.action) {
+    case "getconfig":
+      {
+        getDB().then(db => {
+          db.transaction([NAME_CAT], 'readonly')
+            .objectStore(NAME_CAT)
+            .get('config')
+            .onsuccess = function (event) {
+            e
+              .ports[0]
+              .postMessage(event.target.result)
+          }
+        });
+
+        showNotification("getconfig!")
+
+        break;
+      }
+    case "test":
+      {
+        showNotification("推送测试!")
+        break;
+      }
+    case "saveconfig":
+      {
+        getDB().then(db => {
+          db.transaction([NAME_CAT], 'readwrite')
+            .objectStore(NAME_CAT)
+            .put(e.data.data, 'config')
+            .onsuccess = function (event) {
+            e
+              .ports[0]
+              .postMessage({code: 0})
+            showNotification("保存成功！")
+          }
+        });
+
+        break;
+      }
+  }
 })
 
 /**
@@ -232,7 +281,14 @@ self.addEventListener('message', function (e) {
 setInterval(function () {
   getDB().then(db => {
     let theCat = db.transaction([NAME_CAT], 'readwrite').objectStore(NAME_CAT);
+
     let currentTime = new Date();
+    let currentY = currentTime.getFullYear()
+    let currentMo = currentTime.getMonth();
+    let currentD = currentTime.getDate();
+    let currentH = currentTime.getHours();
+    let currentMin = currentTime.getMinutes();
+
     let user = {};
     let config = {};
     let today_list = [];
@@ -282,6 +338,103 @@ setInterval(function () {
           .onsuccess = (e) => {
           config = e.target.result;
           //showNotification()
+          if (config.show == false) {
+            return;
+          }
+
+          // if closed ,return
+          if (!(config.openFirst || config.openSecond || config.openThird)) {
+            return;
+          }
+
+          //预先准备索引，用于判断将要提醒的课程是否真正上课
+          let indexList = [];
+          today_list.forEach(function (el) {
+            indexList.push(getRowIndex(el))
+          });
+          indexList.sort();
+          let isHavingLastClass = function (currentIndex, hour, minute) {
+            var i = indexList.indexOf(currentIndex);
+            var lastIndex = indexList[i - 1];
+            if (lastIndex) {
+              return isHavingClass(lastIndex, hour, minute, false);
+            } else {
+              return false;
+            }
+          };
+
+          //循环遍历每一节课
+          today_list.forEach(function (el) {
+            var index = getRowIndex(el);
+            var classtime = TIME_GAP[index];
+            var firstTime,
+              secondTime,
+              thirdTime;
+
+            //显示第一次提醒
+            if (config.openFirst && Number(config.first) > 0) {
+              if (!el.firstN) {
+                firstTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.first)))
+                let h = firstTime.getHours();
+                let m = firstTime.getMinutes();
+                if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
+
+                  showNotification(el.where, {
+                    body: el.className + '\n' + el.who,
+                    tag: "first"
+                  });
+                  el.firstN = true;
+                }
+              }
+            }
+
+            //显示第二次提醒
+            if (config.openSecond && Number(config.second) > 0) {
+              if (!el.secondN) {
+                secondTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.first)))
+                let h = secondTime.getHours();
+                let m = secondTime.getMinutes();
+                if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
+                  showNotification(el.where, {
+                    body: el.className + '\n' + el.who,
+                    tag: "second"
+                  });
+                  el.secondN = true;
+                }
+              }
+            }
+
+            //显示第三次提醒
+            if (config.openThird && Number(config.third) > 0) {
+              if (!el.thirdN) {
+                thirdTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.first)))
+                let h = thirdTime.getHours();
+                let m = thirdTime.getMinutes();
+                if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
+                  showNotification(el.where, {
+                    body: el.className + '\n' + el.who,
+                    tag: "third"
+                  });
+                  el.thirdN = true;
+                }
+              }
+            }
+
+            if (!el.rightNow) {
+              if (classtime.fromH == currentH && classtime.fromM == currentMin) {
+                showNotification(el.where, {
+                  body: el.className + '\n' + el.who,
+                  tag: "rightNow"
+                });
+                el.rightNow = true;
+              }
+            }
+
+          });
+
+          theCat
+            .put(today_list, 'today')
+            .onsuccess = e => {};
 
         }
       }
@@ -311,7 +464,7 @@ function showNotification(title, option) {
     actions: [
       {
         action: "dismiss",
-        title: "知道了"
+        title: "知道了！ლ(╹◡╹ლ)"
       }
     ]
   }, option)
@@ -319,8 +472,8 @@ function showNotification(title, option) {
   if (Notification.permission == 'granted') {
     return registration.showNotification(title, default_option)
   } else {
-    console.log("No permission")
-    return Promise.reject(result)
+    console.warn("No permission")
+    return Promise.reject("No permission")
   }
 
 }

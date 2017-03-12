@@ -1,4 +1,3 @@
-
 var TIME_GAP = [
   {
     fromH: 8,
@@ -33,8 +32,17 @@ var TIME_GAP = [
   }
 ]
 
+function isHavingClass(_index, hour, minute, isEqual) {
+  var T = TIME_GAP[_index];
+  if (isEqual) {
+    return (T.fromH <= hour && T.fromM <= minute) && (T.toH >= hour && T.toM >= minute)
 
+  } else {
+    return (T.fromH < hour && T.fromM < minute) && (T.toH > hour && T.toM > minute)
 
+  }
+
+}
 
 /**
  * sort class list by class Orders
@@ -58,6 +66,8 @@ function sortClassList(a, b) {
  * @returns {number}
  */
 function getRowIndex(str) {
+  if (typeof str == "object") 
+    str = str.whichClass.substring(1, 3);
   if (!str && str !== 0) 
     return 0;
   if (/\d+/.test(str)) {
@@ -80,7 +90,6 @@ function getColIndex(num) {
     : num - 1;
 }
 
-
 /**
  *  Date.getDay() 星期天是0
  *
@@ -91,11 +100,11 @@ function doTimeCount(thatDay) {
 
   var timeGap = thatDay - new Date(2017, 1, 27);
   var dayPast = Math.floor(timeGap / (1000 * 60 * 60 * 24)) + 1;
-  var weekendPast = Math.floor(dayPast / 7) + 1;
+  var weekendPast = Math.ceil(dayPast / 7);
   var isoddWeek = (weekendPast % 2) === 1;
-  var id = ""+thatDay.getFullYear()+thatDay.getMonth()+thatDay.getDate();
+  var id = "" + thatDay.getFullYear() + thatDay.getMonth() + thatDay.getDate();
   return {
-    id :id,
+    id: id,
     timeGap: timeGap,
     dayPast: dayPast,
     weekendPast: weekendPast,

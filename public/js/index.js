@@ -115,21 +115,18 @@ Vue.component('content-day', {
       var nowM = now.getMinutes();
 
       // 20 minutes later's time
-      var after20M = new Date(now.getFullYear(), now.getMonth(), now.getDate(), nowH, nowM + 130);
-      console.log(after20M)
+      var after20M = new Date(now.getFullYear(), now.getMonth(), now.getDate(), nowH, nowM + 20);
+
       var aftH = after20M.getHours();
       var aftM = after20M.getMinutes();
       _this
         .todayList
         .forEach(function (el) {
-          console.log(el);
+
           if (el.whichClass) {
-            var Classindex = getRowIndex(el.whichClass.substring(1, 3));
-            var isHavingClass = function (hour, minute) {
-              var T = TIME_GAP[Classindex];
-              return (T.fromH <= hour && T.fromM <= minute) && (T.toH >= hour && T.toM >= minute)
-            }
-            if (isHavingClass(nowH, nowM) || isHavingClass(aftH, aftM)) {
+            var classIndex = getRowIndex(el.whichClass.substring(1, 3));
+
+            if (isHavingClass(classIndex, nowH, nowM, true) || isHavingClass(classIndex, aftH, aftM, true)) {
               el.activated = true;
             } else {
               el.activated = false;
@@ -246,28 +243,37 @@ Vue.component('content-setting', {
       isLoading: false,
       config: {
         show: false,
+        openFirst: false,
         first: 20,
+        openSecond: false,
         second: 5,
-        third:0
+        openThird: false,
+        third: 0
       }
     }
   },
-  created:function(){
-    this.$watch('config.show',function(a,b,c){
-      var _this = this;
-      if(a==true){
-        if(Notification.permission !=="granted"){
-          alert("请同意通知申请。")
-          Notification.requestPermission().then(function(result){
-            if(result!="granted"){
-              alert('无通知权限权限，无法开启.请清除本网站所有数据重试。');
-              _this.config.show = false;
-            }
-          })
+  // watch:{   config:function(a,b){     console.log(a,b)   } },
+  created: function () {
+    this
+      .$watch('config.show', function (a) {
+        var _this = this;
+        if (a == true) {
+          if (Notification.permission !== "granted") {
+            alert("请同意通知申请。")
+            Notification
+              .requestPermission()
+              .then(function (result) {
+                if (result != "granted") {
+                  alert('无通知权限权限，无法开启.请清除本网站所有数据重试。');
+                  _this.config.show = false;
+                }
+              })
+          }
         }
-      }
-      return false;
-    });
+        return false;
+      });
+    this.initConfig();
+
   },
   methods: {
     updateList: function () {
@@ -293,12 +299,64 @@ Vue.component('content-setting', {
         .serviceWorker
         .controller
         .postMessage({
-          "Hellow?": 123,
-          name: "jack"
+          action: "test"
         }, [mc.port2]);
       mc.port1.onmessage = function (e) {
-        console.log(e);
-        console.log("revice message from sw")
+        console.log('test recived')
+      };
+    },
+    initConfig: function () {
+      var mc = new MessageChannel();
+      var _this = this;
+      navigator
+        .serviceWorker
+        .controller
+        .postMessage({
+          action: "getconfig"
+        }, [mc.port2]);
+      mc.port1.onmessage = function (e) {
+        var _timer = undefined;
+        _this.config = e.data;
+        console.log(e)
+        console.log("recive data")
+        _this.$watch('config', function (_new, _old) {
+          //if the input is "" string, let it be 0 at nextTick;
+          if (_new.first == ""|| _new.first <0) {
+            _new.first = 0;
+          }
+          if (_new.second == ""||_new.second <0) {
+            _new.second = 0;
+          }
+          if (_new.third == ""||_new.third <0) {
+            _new.third = 0;
+          }
+
+          if (_timer) {
+            clearTimeout(_timer);
+          }
+          _timer = setTimeout(function () {
+            _this.saveConfig();
+            clearTimeout(_timer);
+          }, 1500);
+        }, {deep: true})
+      };
+    },
+    saveConfig: function () {
+      var mc = new MessageChannel();
+      var _this = this;
+      navigator
+        .serviceWorker
+        .controller
+        .postMessage({
+          action: "saveconfig",
+          data: this.config
+        }, [mc.port2]);
+
+      mc.port1.onmessage = function (e) {
+        if (e.data.code != 0) {
+          alert('设置保存失败！');
+        }
+
       };
     }
   }
@@ -364,13 +422,13 @@ var app = new Vue({
       var s_id = result.id;
       var s_list = result.list;
       var lastRequestTime = result.time;
-      console.log(lastRequestTime);
+
       this.id = s_id;
       this.originList = s_list || [];
       this.lastRequestTime = lastRequestTime;
       this.currentView = 'main-panel'
     } else {
-      console.log(this);
+
       this.currentView = 'login'
     }
 
@@ -477,8 +535,8 @@ if ('serviceWorker' in navigator) {
       // registration.showNotification("3302", {   body: "软件工程导论 张西华，\n hell",   data:
       // "nice work",   tag: "yes",   icon: './cykb192.png',   vibrate: [     200,
       // 100,     200,     100,     200,     100,     200   ],   actions: [     {
-      //  action: "dismiss",       title: "知道了"     }, {       action: "arived",
-      // title: "我到教室了"     }   ] })
+      // action: "dismiss",       title: "知道了"     }, {       action: "arived", title:
+      // "我到教室了"     }   ] })
 
     })
 

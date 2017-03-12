@@ -85,28 +85,45 @@ block content
         p.center.aligned.update-time 本地数据更新于<br>{{updateTime.toLocaleString()}}
   script(type="text/x-template" id="tpl-content-setting")
     .content.setting-content
-      table
+      table.config
         tr
           th 开启上课提醒
           td 
-            input(type="checkbox" v-model="config.show" )
-        tr(v-show="config.show")
+            input(type="checkbox" id="config-show" v-model="config.show" hidden)
+            label(for="config-show")
+        tr(v-show="config.show") 
+          th 第一次提醒
+          td 
+            input(type="checkbox" id="config-first" v-model="config.openFirst" hidden)
+            label(for="config-first")
+        tr(v-show="config.openFirst && config.show")
           th 提前
           td 
-            input(type="number" v-model="config.first" ) 
+            input(type="number"  min=0 max=1440 v-model="config.first" ).number 
             span 分钟提醒
-        tr(v-show="config.show")
+        tr(v-show="config.show") 
           th 第二次提醒
           td 
-            input(type="number" v-model="config.second" )
-        tr(v-show="config.show")
+            input(type="checkbox" id="config-second" v-model="config.openSecond" hidden)
+            label(for="config-second")
+        tr(v-show="config.openSecond && config.show")
+          th 提前
+          td 
+            input(type="number"  min=0  max=1440 v-model="config.second" ).number
+            span 分钟提醒
+        tr(v-show="config.show") 
           th 第三次提醒
           td 
-            input(type="number" v-model="config.third" )
-        tr(v-show="config.show")
-          th 测试
+            input(type="checkbox" id="config-third" v-model="config.openThird" hidden)
+            label(for="config-third")
+        tr(v-show="config.openThird && config.show")
+          th 提前
           td 
-            a(href="javascript:;" v-on:click="pushtest").btn.primary 推送消息测试
+            input(type="number" min=0  max=1440 v-model="config.third" ).number
+            span 分钟提醒
+
+      p(v-show="config.show")    
+        a(href="javascript:;" v-on:click="pushtest").btn.primary 推送测试
       p   
         a(href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}").btn.primary 更新课表
       p 

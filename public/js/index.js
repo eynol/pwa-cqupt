@@ -240,6 +240,7 @@ Vue.component('content-setting', {
   props: ['sid'],
   data: function () {
     return {
+      urlScreenShot :"http://pluscdn.heitaov.cn/Screenrecord-2017-03-12-23-30-39-643.mp4",
       isLoading: false,
       config: {
         show: false,
@@ -541,3 +542,4 @@ if ('serviceWorker' in navigator) {
     })
 
 }
+

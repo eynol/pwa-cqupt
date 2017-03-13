@@ -16,7 +16,7 @@ importScripts('js/util.js')
 // Names of the two caches used in this version of the service worker. Change to
 // v2, etc. when you update any of the local resources, which will in turn
 // trigger the install event again.
-const PRECACHE = 'precache-201702281345';
+const PRECACHE = 'precache-201703131114';
 const RUNTIME = 'runtime';
 
 const DB_NAME = 'cykb';
@@ -68,11 +68,10 @@ function onupgradeneeded(e) {
 // A list of local resources we always want to be cached.
 const PRECACHE_URLS = [
   './',
-
   './css/index.css',
   './js/util.js',
-  './js/index.js',
-  './lib/vue/vue.js',
+  './js/index.min.js',
+  './lib/vue/vue.min.js',
   './icon/list.svg',
   './icon/list-active.svg',
   './icon/day.svg',
@@ -246,7 +245,7 @@ self.addEventListener('message', function (e) {
           }
         });
 
-        showNotification("getconfig!")
+      
 
         break;
       }
@@ -265,7 +264,7 @@ self.addEventListener('message', function (e) {
             e
               .ports[0]
               .postMessage({code: 0})
-            showNotification("保存成功！")
+           
           }
         });
 
@@ -379,7 +378,7 @@ setInterval(function () {
                 let m = firstTime.getMinutes();
                 if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
 
-                  showNotification(el.where, {
+                  showNotification("【"+el.where+"】将在"+config.first+"分钟后上课！", {
                     body: el.className + '\n' + el.who,
                     tag: "first"
                   });
@@ -395,7 +394,7 @@ setInterval(function () {
                 let h = secondTime.getHours();
                 let m = secondTime.getMinutes();
                 if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
-                  showNotification(el.where, {
+                  showNotification("【"+el.where+"】将在"+config.second+"分钟后上课！", {
                     body: el.className + '\n' + el.who,
                     tag: "second"
                   });
@@ -411,7 +410,7 @@ setInterval(function () {
                 let h = thirdTime.getHours();
                 let m = thirdTime.getMinutes();
                 if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
-                  showNotification(el.where, {
+                  showNotification("【"+el.where+"】将在"+config.third+"分钟后上课！", {
                     body: el.className + '\n' + el.who,
                     tag: "third"
                   });
@@ -422,7 +421,7 @@ setInterval(function () {
 
             if (!el.rightNow) {
               if (classtime.fromH == currentH && classtime.fromM == currentMin) {
-                showNotification(el.where, {
+                showNotification('【'+el.where+'】'+"正在上课！", {
                   body: el.className + '\n' + el.who,
                   tag: "rightNow"
                 });
@@ -442,7 +441,7 @@ setInterval(function () {
     }
   })
 
-}, 6000)
+}, 60000)
 
 function getUserList() {
   return new Promise((resolve, reject) => {})
@@ -464,7 +463,7 @@ function showNotification(title, option) {
     actions: [
       {
         action: "dismiss",
-        title: "知道了！ლ(╹◡╹ლ)"
+        title: "我我我知道了(●￣(ｴ)￣●)"
       }
     ]
   }, option)

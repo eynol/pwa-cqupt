@@ -120,7 +120,7 @@ block content
           th 提前
           td 
             input(type="number" min=0  max=1440 v-model="config.third" ).number
-            span 分钟提醒
+            span 分钟提醒 
 
       p(v-show="config.show")    
         a(href="javascript:;" v-on:click="pushtest").btn.primary 推送测试
@@ -130,7 +130,7 @@ block content
         a(href="javascript:;" v-on:click="signout").btn.danger 注销
       br
       p.danger.pd1em.
-        注意：数据来自外网的教务处网站，可能有误，请以教务在线上的课表为准。该应用是可以离线的，请在必要的时候更新数据。
+        注意：数据来自外网的教务处网站，可能有误，请以教务在线上的课表为准。该应用是可以离线的，请在必要的时候更新数据。推送不可靠，如果浏览器进程被关闭了，那么程序也就关闭了。
       br
       p.pd1em.
         本应用采用渐进式Web应用开发，可以添加快捷方式到桌面作为为本地应用使用。
@@ -142,6 +142,7 @@ block content
         a(href="https://github.com/vankai/pwa-cqupt" target="_blank") 点我前往
       p  反馈可以发送邮件到：mr.taokai@foxmail.com
       p 开发者：Vankai
+      p Version 1.0
   script(type="text/x-template" id="tpl-main-panel")
     .main-panel
       .container-wrapper
@@ -163,7 +164,14 @@ block content
         a(href="javascript:;" v-on:click="navTo('setting')")
           i.icon.setting(v-bind:class="{active: tab ==='setting'}")
 
-  script(src='./lib/vue/vue.js')
+
   script(src="./js/util.js")
-  script(src="./js/index.js")
+  if(debug)
+    script(src='./lib/vue/vue.js')
+    script(src="./js/index.js")
+  else
+    script(src='./lib/vue/vue.min.js')
+    script(src="./js/index.min.js")
+
+  
   

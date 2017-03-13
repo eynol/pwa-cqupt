@@ -253,6 +253,7 @@ Vue.component('content-setting', {
       }
     }
   },
+  
   // watch:{   config:function(a,b){     console.log(a,b)   } },
   created: function () {
     this

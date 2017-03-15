@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  noscript 您的浏览器不支持JAVASCRIPT
   #app
     transition(name="fade")
       component(v-bind:is='currentView' v-bind=`{
@@ -142,7 +143,8 @@ block content
         a(href="https://github.com/vankai/pwa-cqupt" target="_blank") 点我前往
       p  反馈可以发送邮件到：mr.taokai@foxmail.com
       p 开发者：Vankai
-      p Version 1.0
+      p Version 1.0.1
+        a(href="https://github.com/vankai/pwa-cqupt/releases" target="_blank") ChangeLog
   script(type="text/x-template" id="tpl-main-panel")
     .main-panel
       .container-wrapper
@@ -164,7 +166,7 @@ block content
         a(href="javascript:;" v-on:click="navTo('setting')")
           i.icon.setting(v-bind:class="{active: tab ==='setting'}")
 
-
+  
   script(src="./js/util.js")
   if(debug)
     script(src='./lib/vue/vue.js')

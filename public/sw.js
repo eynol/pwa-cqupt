@@ -16,8 +16,6 @@ importScripts('js/util.js')
 // Names of the two caches used in this version of the service worker. Change to
 // v2, etc. when you update any of the local resources, which will in turn
 // trigger the install event again.
-const PRECACHE = 'precache-201703131114';
-const RUNTIME = 'runtime';
 
 const DB_NAME = 'cykb';
 const DB_VER = 1;
@@ -65,12 +63,15 @@ function onupgradeneeded(e) {
   }
 
 }
+
+// Following config is cache urls
+
+const PRECACHE = 'precache-201703131114';
+const RUNTIME = 'runtime';
+
 // A list of local resources we always want to be cached.
-const PRECACHE_URLS = [
-  './',
-  './css/index.css',
-  './js/util.js',
-  './js/index.min.js',
+const PRECACHE_URLS = ['./', './css/index.css', './js/util.js', './js/index.min.js'];
+const RESOURCES_URLS = [
   './lib/vue/vue.min.js',
   './icon/list.svg',
   './icon/list-active.svg',
@@ -85,14 +86,14 @@ const ICON_PATH = './cykb192.png';
 
 // The install handler takes care of precaching the resources we always need.
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(self.skipWaiting()));
+  event.waitUntil(caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(() => caches.open(RUNTIME)).then(cache => cache.addAll(RESOURCES_URLS)).then(self.skipWaiting()));
 });
 
-self.addEventListener('statechange', e => {
-  console.log("statechange", e);
-})
-self.addEventListener('updatefound', e => {
-  console.log('updatefound', e);
+registration.addEventListener('updatefound', e => {
+  showNotification('发现新版本! ', {body: '如果界面出错或无法显示,请刷新页面使用新版.'})
+  // console.log('updatefound', e); console.log('a:', registration.active);
+  // console.log('w:', registration.wating); console.log('i:',
+  // registration.installing);
 })
 // The activate handler takes care of cleaning up old caches.
 self.addEventListener('activate', event => {
@@ -111,90 +112,40 @@ self.addEventListener('activate', event => {
 // no response is found, it populates the runtime cache with the response from
 // the network before returning it to the page.
 self.addEventListener('fetch', event => {
+
   // Skip cross-origin requests, like those for Google Analytics.
   if (event.request.url.startsWith(self.location.origin)) {
+    if (navigator.onLine) {
+      if (event.request.headers.get('X-SW-tag') == "get-list") {
+        event.respondWith(getListFromServer(event.request))
+      } else {
 
-    if (event.request.headers.get('X-SW-tag') == "get-list") {
-      event.respondWith(fetch(event.request.url).then(resp => {
-        return new Promise((resolve, reject) => {
-          resp
-            .clone()
-            .json()
-            .then(json => {
-              console.log(json);
-              if (json.code != 0) {
-                showNotification('更新课表失败!')
-                resolve(resp);
-              } else {
+        //Online strategy
+        event.respondWith(caches.open(PRECACHE).then(cache => cache.match(event.request.clone())).then(cachedResponse => {
+          if (cachedResponse) {
+            //Request precached resources, return the response directly.
 
-                getDB().then(db => {
-                  let transaction = db.transaction([
-                    NAME_CAT, NAME_LIST_ALL
-                  ], "readwrite");
-                  let cat = transaction.objectStore(NAME_CAT);
-                  let listStore = transaction.objectStore(NAME_LIST_ALL);
-                  let afterStore = () => {
-                    if (event.request.headers.get('X-ROOTUSER') == "ROOT") {
-                      cat
-                        .put(json, NAME_CAT)
-                        .onsuccess = () => {
-                        showNotification('更新课表成功!', {
-                          body: "学号为" + json.id
-                        })
-                        resolve(resp);
-                      }
-                    } else {
-                      resolve(resp)
-                    }
-                  };
-                  var req = listStore.get(json.id);
-                  req.onsuccess = (e) => {
-                    if (req.result) {
-                      listStore
-                        .put(json)
-                        .onsuccess = afterStore;
-                    } else {
-                      listStore
-                        .add(json)
-                        .onsuccess = afterStore;
-                    }
-                  }
-                  req.onerror = () => {
-                    console.log("error")
-                  }
+            return cachedResponse
+          } else {
+            //onLine resources first , always get a new one.
 
+            return caches
+              .open(RUNTIME)
+              .then(cache => {
+                return fetch(event.request).then(response => {
+                  // Put a copy of the response in the runtime cache.
+                  return cache
+                    .put(event.request, response.clone())
+                    .then(() => {
+                      return response
+                    })
                 })
-              }
-            });
-        })
-
-      }))
-    } else if (navigator.onLine) {
-      //Online strategy
-      event.respondWith(caches.open(PRECACHE).then(cache => cache.match(event.request.clone())).then(cachedResponse => {
-        if (cachedResponse) {
-          //Request precached resources, return the response directly.
-          console.log("precache:" + event.request.url)
-          return cachedResponse
-        } else {
-          //onLine resources first , always get a new one.
-          console.log("getNew:" + event.request.url)
-          return caches
-            .open(RUNTIME)
-            .then(cache => {
-              return fetch(event.request).then(response => {
-                // Put a copy of the response in the runtime cache.
-                return cache
-                  .put(event.request, response.clone())
-                  .then(() => {
-                    return response
-                  })
               })
-            })
-        }
-      }))
+          }
+        }))
+      }
     } else {
-      //Off-line , Cache first, 404 second
+      //Off-line , Cache first, error second
       event.respondWith(caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
           return cachedResponse
@@ -207,8 +158,7 @@ self.addEventListener('fetch', event => {
 });
 
 self.addEventListener('notificationclick', function (event) {
-  console.log(event)
-  console.log('On notification click: ', event.notification.tag);
+
   switch (event.action) {
     case "dismiss":
       {}
@@ -230,8 +180,12 @@ self.addEventListener('notificationclick', function (event) {
 });
 
 self.addEventListener('message', function (e) {
-  console.log(e);
   switch (e.data.action) {
+    case 'activate-publicChanel':
+      {
+        // self.publicChanel = e.ports[0];
+        break;
+      }
     case "getconfig":
       {
         getDB().then(db => {
@@ -239,13 +193,24 @@ self.addEventListener('message', function (e) {
             .objectStore(NAME_CAT)
             .get('config')
             .onsuccess = function (event) {
-            e
-              .ports[0]
-              .postMessage(event.target.result)
+            let result = event.target.result;
+            if (result) {
+              e
+                .ports[0]
+                .postMessage(event.target.result)
+            } else {
+              showNotification('没有配置文件~将初始化配置!');
+              db.transaction([NAME_CAT], 'readwrite')
+                .objectStore(NAME_CAT)
+                .add(default_config, 'config')
+                .onsuccess = success_e => {
+                e
+                  .ports[0]
+                  .postMessage(default_config)
+              };
+            }
           }
         });
-
-      
 
         break;
       }
@@ -264,7 +229,7 @@ self.addEventListener('message', function (e) {
             e
               .ports[0]
               .postMessage({code: 0})
-           
+
           }
         });
 
@@ -319,6 +284,7 @@ setInterval(function () {
             });
           if (today_list.length == 0) 
             return;
+          today_list.sort(sortClassList);
           theCat[today
               ? "put"
               : "add"]({
@@ -376,9 +342,9 @@ setInterval(function () {
                 firstTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.first)))
                 let h = firstTime.getHours();
                 let m = firstTime.getMinutes();
-                if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
+                if (classtime.fromH == h && classtime.fromM == m && !isHavingLastClass(index, h, m)) {
 
-                  showNotification("【"+el.where+"】将在"+config.first+"分钟后上课！", {
+                  showNotification("【" + el.where + "】将在" + config.first + "分钟后上课！", {
                     body: el.className + '\n' + el.who,
                     tag: "first"
                   });
@@ -390,11 +356,11 @@ setInterval(function () {
             //显示第二次提醒
             if (config.openSecond && Number(config.second) > 0) {
               if (!el.secondN) {
-                secondTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.first)))
+                secondTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.second)))
                 let h = secondTime.getHours();
                 let m = secondTime.getMinutes();
-                if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
-                  showNotification("【"+el.where+"】将在"+config.second+"分钟后上课！", {
+                if (classtime.fromH == h && classtime.fromM == m && !isHavingLastClass(index, h, m)) {
+                  showNotification("【" + el.where + "】将在" + config.second + "分钟后上课！", {
                     body: el.className + '\n' + el.who,
                     tag: "second"
                   });
@@ -406,11 +372,11 @@ setInterval(function () {
             //显示第三次提醒
             if (config.openThird && Number(config.third) > 0) {
               if (!el.thirdN) {
-                thirdTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.first)))
+                thirdTime = new Date(currentY, currentMo, currentD, currentH, (currentMin + Number(config.third)))
                 let h = thirdTime.getHours();
                 let m = thirdTime.getMinutes();
-                if (classtime.fromH == h && classtime.fromM == m &&!isHavingLastClass(index,h,m)) {
-                  showNotification("【"+el.where+"】将在"+config.third+"分钟后上课！", {
+                if (classtime.fromH == h && classtime.fromM == m && !isHavingLastClass(index, h, m)) {
+                  showNotification("【" + el.where + "】将在" + config.third + "分钟后上课！", {
                     body: el.className + '\n' + el.who,
                     tag: "third"
                   });
@@ -421,7 +387,7 @@ setInterval(function () {
 
             if (!el.rightNow) {
               if (classtime.fromH == currentH && classtime.fromM == currentMin) {
-                showNotification('【'+el.where+'】'+"正在上课！", {
+                showNotification('【' + el.where + '】正在上课！', {
                   body: el.className + '\n' + el.who,
                   tag: "rightNow"
                 });
@@ -431,9 +397,10 @@ setInterval(function () {
 
           });
 
-          theCat
-            .put(today_list, 'today')
-            .onsuccess = e => {};
+          theCat.put({
+            id: timeOptionID,
+            list: today_list
+          }, 'today').onsuccess = e => {};
 
         }
       }
@@ -443,8 +410,61 @@ setInterval(function () {
 
 }, 60000)
 
-function getUserList() {
-  return new Promise((resolve, reject) => {})
+function getListFromServer(request) {
+  return fetch(request.url).then(resp => {
+    return new Promise((resolve, reject) => {
+      resp
+        .clone()
+        .json()
+        .then(json => {
+      
+          if (json.code != 0) {
+            showNotification('更新课表失败!')
+            resolve(resp);
+          } else {
+
+            getDB().then(db => {
+              let transaction = db.transaction([
+                NAME_CAT, NAME_LIST_ALL
+              ], "readwrite");
+              let cat = transaction.objectStore(NAME_CAT);
+              let listStore = transaction.objectStore(NAME_LIST_ALL);
+              let afterStore = () => {
+                if (request.headers.get('X-ROOTUSER') == "ROOT") {
+                  cat
+                    .put(json, NAME_CAT)
+                    .onsuccess = () => {
+                    showNotification('更新课表成功!', {
+                      body: "学号为" + json.id
+                    })
+                    resolve(resp);
+                  }
+                } else {
+                  resolve(resp)
+                }
+              };
+              var req = listStore.get(json.id);
+              req.onsuccess = (e) => {
+                if (req.result) {
+                  listStore
+                    .put(json)
+                    .onsuccess = afterStore;
+                } else {
+                  listStore
+                    .add(json)
+                    .onsuccess = afterStore;
+                }
+              }
+              req.onerror = (e) => {
+                console.log(e)
+              }
+
+            })
+          }
+        });
+    })
+
+  })
 }
 
 function showNotification(title, option) {
@@ -466,10 +486,10 @@ function showNotification(title, option) {
         title: "我我我知道了(●￣(ｴ)￣●)"
       }
     ]
-  }, option)
+  }, option);
 
   if (Notification.permission == 'granted') {
-    return registration.showNotification(title, default_option)
+    return registration.active && registration.showNotification(title, default_option)
   } else {
     console.warn("No permission")
     return Promise.reject("No permission")

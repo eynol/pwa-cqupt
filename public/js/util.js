@@ -129,7 +129,7 @@ function getListById(sid, callback, option) {
   xhr.open('get', './api/kebiao/stu/' + sid + '?t=' + Date.now() + (option.root
     ? '#ROOTUSER'
     : ''));
-  console.log(option)
+ 
   xhr.responseType = 'json';
   if (option.root) {
     xhr.setRequestHeader('X-ROOTUSER', 'ROOT')
@@ -139,7 +139,7 @@ function getListById(sid, callback, option) {
     callback(null, xhr.response)
   }
   xhr.onerror = function (e) {
-    console.log(e)
+ 
     alert("发送失败！")
     callback(e);
   }

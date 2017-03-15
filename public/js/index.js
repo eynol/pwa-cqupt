@@ -240,7 +240,7 @@ Vue.component('content-setting', {
   props: ['sid'],
   data: function () {
     return {
-      urlScreenShot :"http://pluscdn.heitaov.cn/Screenrecord-2017-03-12-23-30-39-643.mp4",
+      urlScreenShot: "http://pluscdn.heitaov.cn/Screenrecord-2017-03-12-23-30-39-643.mp4",
       isLoading: false,
       config: {
         show: false,
@@ -253,7 +253,7 @@ Vue.component('content-setting', {
       }
     }
   },
-  
+
   // watch:{   config:function(a,b){     console.log(a,b)   } },
   created: function () {
     this
@@ -308,40 +308,45 @@ Vue.component('content-setting', {
       };
     },
     initConfig: function () {
-      var mc = new MessageChannel();
       var _this = this;
+      var mc = new MessageChannel();
       navigator
         .serviceWorker
-        .controller
-        .postMessage({
-          action: "getconfig"
-        }, [mc.port2]);
-      mc.port1.onmessage = function (e) {
-        var _timer = undefined;
-        _this.config = e.data;
-        console.log(e)
-        console.log("recive data")
-        _this.$watch('config', function (_new, _old) {
-          //if the input is "" string, let it be 0 at nextTick;
-          if (_new.first == ""|| _new.first <0) {
-            _new.first = 0;
-          }
-          if (_new.second == ""||_new.second <0) {
-            _new.second = 0;
-          }
-          if (_new.third == ""||_new.third <0) {
-            _new.third = 0;
-          }
+        .ready
+        .then(function () {
+          navigator
+            .serviceWorker
+            .controller
+            .postMessage({
+              action: "getconfig"
+            }, [mc.port2]);
+          mc.port1.onmessage = function (e) {
+            var _timer = undefined;
+            _this.config = e.data;
+            console.log(e)
+            console.log("recive data")
+            _this.$watch('config', function (_new, _old) {
+              //if the input is "" string, let it be 0 at nextTick;
+              if (_new.first == "" || _new.first < 0) {
+                _new.first = 0;
+              }
+              if (_new.second == "" || _new.second < 0) {
+                _new.second = 0;
+              }
+              if (_new.third == "" || _new.third < 0) {
+                _new.third = 0;
+              }
 
-          if (_timer) {
-            clearTimeout(_timer);
-          }
-          _timer = setTimeout(function () {
-            _this.saveConfig();
-            clearTimeout(_timer);
-          }, 1500);
-        }, {deep: true})
-      };
+              if (_timer) {
+                clearTimeout(_timer);
+              }
+              _timer = setTimeout(function () {
+                _this.saveConfig();
+                clearTimeout(_timer);
+              }, 1500);
+            }, {deep: true})
+          };
+        })
     },
     saveConfig: function () {
       var mc = new MessageChannel();
@@ -530,17 +535,11 @@ if ('serviceWorker' in navigator) {
     .serviceWorker
     .ready
     .then(function (registration) {
-      // console.log(registration) console.log(navigator.serviceWorker)
-      // registration.active.onmessage = function (e) {   console.log("OnMessage")
-      // console.log(e.data) } Notification   .requestPermission()   .then(function
-      // (result) {     console.log(result);   })
-      // registration.showNotification("3302", {   body: "软件工程导论 张西华，\n hell",   data:
-      // "nice work",   tag: "yes",   icon: './cykb192.png',   vibrate: [     200,
-      // 100,     200,     100,     200,     100,     200   ],   actions: [     {
-      // action: "dismiss",       title: "知道了"     }, {       action: "arived", title:
-      // "我到教室了"     }   ] })
+      // var publicChanel = new MessageChannel(); publicChanel   .port1
+      // .addEventListener('message', function (e) {     console.log(e);   })
+      // registration   .active   .postMessage({     action: 'activate-publicChanel'
+      // }, [publicChanel.port2])
 
     })
 
 }
-

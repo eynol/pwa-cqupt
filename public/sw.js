@@ -436,7 +436,7 @@ setInterval(function () {
     }
   })
 
-}, 58000)
+}, 20000)
 
 function getListFromServer(request) {
   return fetch(request.url).then(resp => {

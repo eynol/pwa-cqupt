@@ -242,6 +242,7 @@ Vue.component('content-setting', {
     return {
       urlScreenShot: "http://pluscdn.heitaov.cn/Screenrecord-2017-03-12-23-30-39-643.mp4",
       isLoading: false,
+      inited:false,
       config: {
         show: false,
         openFirst: false,
@@ -259,7 +260,8 @@ Vue.component('content-setting', {
     this
       .$watch('config.show', function (a) {
         var _this = this;
-        if (a == true) {
+        
+        if (a == true && _this.inited) {
           if (Notification.permission !== "granted") {
             alert("请同意通知申请。")
             Notification
@@ -310,10 +312,12 @@ Vue.component('content-setting', {
     initConfig: function () {
       var _this = this;
       var mc = new MessageChannel();
+      console.log("init")
       navigator
         .serviceWorker
         .ready
-        .then(function () {
+        .then(function (reg) {
+          console.log("ready");
           navigator
             .serviceWorker
             .controller
@@ -530,11 +534,12 @@ if ('serviceWorker' in navigator) {
   navigator
     .serviceWorker
     .register('./sw.js')
-
+console.log("try");
   navigator
     .serviceWorker
     .ready
     .then(function (registration) {
+      console.log("ready at one");
       // var publicChanel = new MessageChannel(); publicChanel   .port1
       // .addEventListener('message', function (e) {     console.log(e);   })
       // registration   .active   .postMessage({     action: 'activate-publicChanel'

@@ -66,7 +66,7 @@ function onupgradeneeded(e) {
 
 // Following config is cache urls
 
-const PRECACHE = 'precache-201703131114';
+const PRECACHE = 'precache-201703311411';
 const RUNTIME = 'runtime';
 
 // A list of local resources we always want to be cached.
@@ -85,12 +85,12 @@ const RESOURCES_URLS = [
 const ICON_PATH = './cykb192.png';
 
 // The install handler takes care of precaching the resources we always need.
-self.addEventListener('install', event => {
+self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(() => caches.open(RUNTIME)).then(cache => cache.addAll(RESOURCES_URLS)).then(self.skipWaiting()));
 });
 
 registration.addEventListener('updatefound', e => {
-  showNotification('发现新版本! ', {body: '如果界面出错或无法显示,请刷新页面使用新版.'})
+  showNotification('已更新到1.0.2! ', {body: '* 解决"获得今日课程"事务出错 而导致不能继续的问题\n* 修改样式，突出课表顺序\n\n有任何建议和意见可以发送邮件给我。'})
   // console.log('updatefound', e); console.log('a:', registration.active);
   // console.log('w:', registration.wating); console.log('i:',
   // registration.installing);
@@ -263,11 +263,35 @@ setInterval(function () {
       .get(NAME_CAT)
       .onsuccess = (e) => {
       user = e.target.result;
-      if (!user) 
+
+      if (!user) {
+        showNotification("欧漏！后台用户列表丢失~要注销重新登录！>_<")
         return false;
-      theCat
-        .get('today')
-        .onsuccess = (e) => {
+      }
+      let today_transition = theCat.get('today');
+
+      today_transition.onerror = (e) => {
+        
+        today_list = user
+          .list
+          .filter(function (el) {
+            if (el.weekend.indexOf(timeOption.weekendPast) != -1 && el.day == timeOption.todayDay) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        if (today_list.length == 0) 
+          return;
+        today_list.sort(sortClassList);
+        theCat.put({
+          id: timeOptionID,
+          list: today_list
+        }, 'today').onsuccess = (e) => {
+          afterGetToday(today_list);
+        };
+      }
+      today_transition.onsuccess = (e) => {
         let today = e.target.result;
 
         if (today && today.id == timeOptionID) {
@@ -285,14 +309,16 @@ setInterval(function () {
           if (today_list.length == 0) 
             return;
           today_list.sort(sortClassList);
-          theCat[today
-              ? "put"
-              : "add"]({
+          theCat.put({
             id: timeOptionID,
             list: today_list
           }, 'today');
         }
+        afterGetToday(today_list);
+      };
 
+      function afterGetToday(today_list) {
+       
         //保证today_list
         if (today_list.length == 0) 
           return;
@@ -321,6 +347,8 @@ setInterval(function () {
           let isHavingLastClass = function (currentIndex, hour, minute) {
             var i = indexList.indexOf(currentIndex);
             var lastIndex = indexList[i - 1];
+
+           
             if (lastIndex) {
               return isHavingClass(lastIndex, hour, minute, false);
             } else {
@@ -408,7 +436,7 @@ setInterval(function () {
     }
   })
 
-}, 60000)
+}, 58000)
 
 function getListFromServer(request) {
   return fetch(request.url).then(resp => {
@@ -417,7 +445,7 @@ function getListFromServer(request) {
         .clone()
         .json()
         .then(json => {
-      
+
           if (json.code != 0) {
             showNotification('更新课表失败!')
             resolve(resp);
@@ -443,21 +471,10 @@ function getListFromServer(request) {
                   resolve(resp)
                 }
               };
-              var req = listStore.get(json.id);
-              req.onsuccess = (e) => {
-                if (req.result) {
-                  listStore
-                    .put(json)
-                    .onsuccess = afterStore;
-                } else {
-                  listStore
-                    .add(json)
-                    .onsuccess = afterStore;
-                }
-              }
-              req.onerror = (e) => {
-                console.log(e)
-              }
+
+              listStore
+                .put(json)
+                .onsuccess = afterStore;
 
             })
           }
@@ -513,5 +530,4 @@ function uninstall() {
           postMessage(JSON.stringify({tag: 'alert', msg: '已卸载该应用'}))
         })
     });
-
 }

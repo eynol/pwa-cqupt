@@ -90,7 +90,7 @@ self.addEventListener('install', function (event) {
 });
 
 registration.addEventListener('updatefound', e => {
-  showNotification('已更新到1.0.2! ', {body: '* 解决"获得今日课程"事务出错 而导致不能继续的问题\n* 修改样式，突出课表顺序\n\n有任何建议和意见可以发送邮件给我。'})
+  showNotification('已更新到1.0.2! ', {body: '请刷新页面以使用新样式\n* 解决"获得今日课程"事务出错 而导致不能继续的问题\n* 修改样式，突出课表顺序\n\n有任何建议和意见可以发送邮件给我。'})
   // console.log('updatefound', e); console.log('a:', registration.active);
   // console.log('w:', registration.wating); console.log('i:',
   // registration.installing);
@@ -509,7 +509,7 @@ function showNotification(title, option) {
     return registration.active && registration.showNotification(title, default_option)
   } else {
     console.warn("No permission")
-    return Promise.reject("No permission")
+    return ;
   }
 
 }

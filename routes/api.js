@@ -9,7 +9,7 @@ var _path = '/showUserKebiao.php'
 
 /* GET home page. */
 router.get('/kebiao/:type/:id', function (req, res, next) {
-
+    var chuckList = [];
     var _html = "";
     var _data = querystring.stringify({id: req.params.id, type: req.params.type});
     var _option = {
@@ -18,26 +18,33 @@ router.get('/kebiao/:type/:id', function (req, res, next) {
         port: 80,
         path: _path,
         headers: {
+            'Accept': 'text/html, */*; q=0.01',
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept-Language': 'zh-CN,zh;q=0.8,en;q=0.6',
             'Host': 'jwc.cqupt.edu.cn',
             'Origin': 'http://jwc.cqupt.edu.cn',
+            'Referer': 'http://jwc.cqupt.edu.cn/',
             'X-Requested-With': 'XMLHttpRequest',
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
             'Content-Length': _data.length,
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like G' +
-                    'ecko) Chrome/45.0.1750.117 Safari/537.36'
+            'User-Agent': ' Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko' +
+                    ') Chrome/57.0.2987.133 Safari/537.36'
         }
     };
 
     var oneshot = http.request(_option, function (_res) {
         _res
             .on('data', function (data) {
-                _html += data;
+                chuckList.push(data);
             });
         _res.on('end', function () {
+            _html = Buffer
+                .concat(chuckList)
+                .toString('utf-8');
 
             var list = classTools.html2array(_html);
             if (list.length > 0) {
-                res.json({code: 0, time:req.query.t,id: req.params.id, list: list});
+                res.json({code: 0, time: req.query.t, id: req.params.id, list: list});
 
             } else {
                 res.json({code: 2, msg: "暂未查询到您的课表！"})

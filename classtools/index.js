@@ -2,7 +2,7 @@ var cheerio = require('cheerio');
 
 function html2array(html) {
 
-  var $ = cheerio.load(html)
+  var $ = cheerio.load(html, {decodeEntities: false})
 
   var tr = $('tr').filter(function (index, el) {
     if (el.children.length == 0) 

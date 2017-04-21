@@ -1,3 +1,6 @@
+/**
+ *  上课的时间
+ */
 var TIME_GAP = [
   {
     fromH: 8,
@@ -32,6 +35,16 @@ var TIME_GAP = [
   }
 ]
 
+
+/**
+ *  当前时间是否在上课
+ * 
+ * @param {int} _index 课程的索引
+ * @param {int} hour  当前小时
+ * @param {int} minute  当前分钟
+ * @param {boolean} isEqual  是否包含整点
+ * @returns {boolean}
+ */
 function isHavingClass(_index, hour, minute, isEqual) {
   var T = TIME_GAP[_index];
   if (isEqual) {
@@ -124,6 +137,13 @@ function doTimeCount(thatDay) {
   }
 }
 
+/**
+ * 根据学生id获取课表
+ * 
+ * @param {string} sid 
+ * @param {function} callback ;获取成功后执行的回调函数
+ * @param {object} option 
+ */
 function getListById(sid, callback, option) {
   var xhr = new XMLHttpRequest();
   xhr.open('get', './api/kebiao/stu/' + sid + '?t=' + Date.now() + (option.root

@@ -1,9 +1,10 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express')
+var router = express.Router()
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: '重邮课表' ,debug:req.query['debug']});
-});
+router.get('/s', function (req, res, next) {
+  console.log('here')
+  res.render('index.html')
+})
 
-module.exports = router;
+module.exports = router

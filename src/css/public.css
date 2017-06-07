@@ -1,0 +1,194 @@
+html,
+body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    color: #444;
+    -webkit-overflow-scrolling: touch;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.text-center {
+    text-align: center;
+}
+
+input[type='checkbox']+label {
+    position: relative;
+    display: inline-block;
+    padding: 9px;
+    width: 58px;
+    height: 33px;
+    margin-right: 30px;
+    border-radius: 50px;
+    background-color: #fafbfa;
+    vertical-align: middle;
+    -webkit-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+}
+
+input[type='checkbox']+label:after {
+    content: ' ';
+    position: absolute;
+    top: 0;
+    -webkit-transition: box-shadow 0.1s ease-in;
+    transition: box-shadow 0.1s ease-in;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 100px;
+    box-shadow: inset 0 0 0 0 #eee, 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+input[type='checkbox']+label:before {
+    content: ' ';
+    position: absolute;
+    background: #fff;
+    top: 1px;
+    left: 1px;
+    z-index: 999999;
+    width: 31px;
+    -webkit-transition: all 0.1s ease-in;
+    transition: all 0.1s ease-in;
+    height: 31px;
+    border-radius: 100px;
+    box-shadow: 0 3px 1px rgba(0, 0, 0, 0.05), 0 0px 1px rgba(0, 0, 0, 0.3);
+}
+
+input[type='checkbox']:active+label:after {
+    box-shadow: inset 0 0 0 20px #eee, 0 0 1px #eee;
+}
+
+input[type='checkbox']:active+label:before {
+    width: 37px;
+}
+
+input[type='checkbox']:checked:active+label:before {
+    width: 37px;
+    left: 20px;
+}
+
+input[type='checkbox']+label:active {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+input[type='checkbox']:checked+label:before {
+    content: ' ';
+    position: absolute;
+    left: 26px;
+    border-radius: 100px;
+}
+
+input[type='checkbox']:checked+label:after {
+    content: ' ';
+    font-size: 1.5em;
+    position: absolute;
+    background: linear-gradient(-135deg, #37bc98 0%, #a0d468 100%);
+    box-shadow: 0 0 1px #40be93;
+}
+
+.btn {
+    display: inline-block;
+    position: relative;
+    color: #444;
+    padding: 6px 20px;
+    overflow: hidden;
+    text-decoration: none;
+    /* box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.13);*/
+    transition: all 0.3s;
+}
+
+.btn.primary {
+    color: #fff;
+    border: solid 2px #46bf91;
+    background-color: #46bf91;
+    /*box-shadow: 0 3px 3px -1px #46bf91;*/
+}
+
+.btn:hover {
+    box-shadow: 0 4px 16px -3px rgba(0, 0, 0, 0.23);
+}
+
+.btn:active {
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.13);
+    transform: translateY(2px);
+}
+
+.btn.danger {
+    color: #fff;
+    background: #e4352e;
+    /*box-shadow: 0 3px 3px -1px rgba(255, 41, 41, 0.53);*/
+}
+
+p.danger {
+    color: #f76d68;
+}
+
+
+
+.icon{
+  display: inline-block;
+  height: 2em;
+  width: 2em;
+  position: relative;
+}
+.icon:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  width: 2em;
+  height: 2em;
+  background-position: center;
+  background-size: cover;
+}
+
+.icon.back:before {
+  background-image: url("../assets/icon/back.svg");
+}
+
+.icon.new:before {
+  background-image: url("../assets/icon/new.svg");
+}
+
+
+
+@-moz-keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}
+@-webkit-keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}
+@-o-keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}
+@keyframes activeClass {
+  0%, 100% {
+    box-shadow: 0 2px 3px rgba(255,137,137,0.44), 0 3px 4px rgba(0,0,0,0.12);
+  }
+  50% {
+    box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
+  }
+}

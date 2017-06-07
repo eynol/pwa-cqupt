@@ -54,7 +54,7 @@ router.get('/kebiao/:type/:id', function (req, res, next) {
     oneshot.write(_data);
     oneshot.end();
     oneshot.on('error', function (e) {
-        res.json({code: 1, msg: "errors on request"})
+        res.json({code: 1, msg: "后台系统无法发出请求~请联系管理员~"})
     })
 
     // res.json({ title: 'Express' });

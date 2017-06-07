@@ -14,7 +14,7 @@
   </frame-layout>
 </template>
 <script>
-import FrameLayout from '@/components/UI/FrameLayout'
+import FrameLayout from '@ui/FrameLayout'
 export default {
   name: 'phoneNumbers',
   components: {

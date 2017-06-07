@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import CourseTable from 'UI/CourseTable'
+import CourseTable from '@ui/CourseTable'
 
 export default {
   name: 'table',

@@ -10,8 +10,8 @@
   </frame-layout>
 </template>
 <script>
-import FrameLayout from 'UI/FrameLayout'
-import CourseTable from 'UI/CourseTable'
+import FrameLayout from '@ui/FrameLayout'
+import CourseTable from '@ui/CourseTable'
 export default {
   name: 'userCourseView',
   props: ['userlist', 'todayOption'],

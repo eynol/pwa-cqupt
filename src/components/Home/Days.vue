@@ -39,7 +39,7 @@
 </template>
 <script>
 import Util from '@/util'
-import Course from 'UI/course'
+import Course from '@ui/Course'
 import Poison from '@/Poison'
 
 export default {

@@ -17,7 +17,7 @@
   </frame-layout>
 </template>
 <script>
-import FrameLayout from '@/components/UI/FrameLayout'
+import FrameLayout from 'UI/FrameLayout'
 export default {
   name: 'userlistview',
   props: ['userlist'],

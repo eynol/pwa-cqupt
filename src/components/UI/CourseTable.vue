@@ -26,7 +26,7 @@
   </div>
 </template>
 <script>
-import TableCell from '@/components/UI/TableCell'
+import TableCell from 'UI/TableCell'
 import Util from '@/util'
 window.ui_table = window.ui_table || {}
 

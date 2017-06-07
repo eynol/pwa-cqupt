@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import CourseTable from '@/components/UI/CourseTable'
+import CourseTable from 'UI/CourseTable'
 
 export default {
   name: 'table',

@@ -110,7 +110,7 @@
 </template>
 
 <script>
-import Card from '@/components/UI/Card'
+import Card from 'UI/Card'
 import Listener from '@/Listener'
 import Util from '@/util'
 

@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import Listener from './Listener'
-import util from './util.js'
+import Listener from '@/Listener'
+import util from '@/util'
 
 var storeTool = {
   _prefix: 'CQUPT',

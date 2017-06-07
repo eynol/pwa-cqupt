@@ -31,7 +31,7 @@ export default {
   margin: 20px;
   text-align: left;
   padding: 10px 20px;
-  border-radius: 2px;
+  border-radius: 12px;
   background-color: #fff;
   box-shadow: 0 3px 12px -3px rgba(0, 0, 0, 0.23);
   overflow: hidden;
@@ -72,13 +72,13 @@ export default {
 }
 
 .course__room {
-  margin-top: 1.88em;
+  margin-top: 2em;
   display: inline-block;
 }
 
 .course__order {
   position: absolute;
-  top: 5px;
+  top: 9px;
   width: 6em;
   left: 0;
   background-color: #545454;

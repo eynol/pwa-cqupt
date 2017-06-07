@@ -1,5 +1,5 @@
 <template>
-  <blockquote>
+  <blockquote class="ui-poison">
     <p>{{result}}</p>
   </blockquote>
 </template>
@@ -53,3 +53,8 @@ export default {
   }
 }
 </script>
+<style>
+.ui-poison{
+  text-align: left;
+}
+</style>

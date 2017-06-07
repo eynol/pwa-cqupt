@@ -30,7 +30,7 @@
       <poison></poison>
     </div>
     <div class="days__when-update">
-      <p class="center aligned update-time">
+      <p class="center aligned color-ignore">
         本地数据更新于
         <br>{{updateTime.toLocaleString()}}
       </p>
@@ -130,6 +130,4 @@ export default {
   color: #016946;
   font-weight: 300;
 }
-
-.days__when-update {}
 </style>

@@ -3,7 +3,7 @@
     <a href="javascript:;" v-on:click="newuser" slot="right">
       <i class="icon new"></i>
     </a>
-    <p slot="title">查看其它课表</p>
+    <p slot="title">全部</p>
     <div slot="body">
       <ul class="other__userlist">
         <li class="other__userlist-item" v-for="u,index in userlist">

@@ -192,3 +192,7 @@ p.danger {
     box-shadow: 0 5px 30px rgba(255,137,137,0.44), 0 3px 3px 1px rgba(255,137,137,0.44);
   }
 }
+
+.color-ignore {
+  color: #bbb;
+}

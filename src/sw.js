@@ -244,8 +244,8 @@ global.registration.addEventListener('updatefound', e => {
     console.log('updatefound', e)
   }
 
-  showNotification('已更新到1.1.0! ', {
-    body: '请刷新页面以使用新样式\n* 使用Vue-cli重组整个项目\n* 新增固定表头的功能\n* 新增附加功能 查看别人课表和校内联系电话\n\n新增QQ群。'
+  showNotification('发现新版本！', {
+    body: '刷新页面后将使用新版本！'
   })
 })
 

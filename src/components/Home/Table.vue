@@ -5,7 +5,7 @@
     <p class="center aligned">* 浅绿色背景的课程在本周有课 *</p>
     <courseTable query='.home__content' :list="originList"></courseTable>
     <div class="content_action">
-      <p class="center aligned update-time">本地数据更新于
+      <p class="center aligned color-ignore">本地数据更新于
         <br>{{updateTime.toLocaleString()}}</p>
     </div>
 

@@ -283,7 +283,7 @@ table.noWeekend tr td:nth-child(8) {
   border: solid 1px #bbb;
 }
 
-table.noWeekend tr td:nth-child(1) {
+table tr td:nth-child(1) {
   min-width: 3em;
   width: 3em;
   background-color: white;

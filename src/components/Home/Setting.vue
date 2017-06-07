@@ -1,55 +1,74 @@
 <template>
   <div class="home__content">
     <h1 class="app-title">设置</h1>
+    <card>
+      <h2 class="text-center">{{id}}</h2>
+      <p class="text-center">
+        <a class="btn primary" href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}">更新课表</a>
+      </p>
+      <p class="text-center">
+        <a class="btn danger" href="javascript:;" v-on:click="signout">注销</a>
+      </p>
+    </card>
     <card v-if="hasServiceWorker">
+      <h4 v-show="!inited">初始化中...</h4>
       <table class="config" v-show="inited">
         <tr>
-          <th>开启上课提醒</th>
-          <td>
+          <th>
             <input type="checkbox" id="config-show" v-model="config.show" hidden>
             <label for="config-show"></label>
+          </th>
+          <td>
+            开启上课提醒
           </td>
         </tr>
         <tr v-show="config.show">
-          <th>第一次提醒</th>
-          <td>
+          <th>
             <input type="checkbox" id="config-first" v-model="config.openFirst" hidden>
             <label for="config-first"></label>
-          </td>
+          </th>
+          <td>第一次提醒</td>
         </tr>
         <tr v-show="config.openFirst && config.show">
-          <th>提前</th>
-          <td>
+          <th>
             <input class="number" type="number" min="0" max="1440" v-model="config.first">
-            <span>分钟提醒</span>
+          </th>
+          <td>
+            <span>分钟前</span>
           </td>
         </tr>
         <tr v-show="config.show">
-          <th>第二次提醒</th>
-          <td>
+          <th>
             <input type="checkbox" id="config-second" v-model="config.openSecond" hidden>
             <label for="config-second"></label>
+          </th>
+          <td>
+            第二次提醒
           </td>
         </tr>
         <tr v-show="config.openSecond && config.show">
-          <th>提前</th>
-          <td>
+          <th>
             <input class="number" type="number" min="0" max="1440" v-model="config.second">
-            <span>分钟提醒</span>
+          </th>
+          <td>
+            <span>分钟前</span>
           </td>
         </tr>
         <tr v-show="config.show">
-          <th>第三次提醒</th>
-          <td>
+          <th>
             <input type="checkbox" id="config-third" v-model="config.openThird" hidden>
             <label for="config-third"></label>
+          </th>
+          <td>
+            第三次提醒
           </td>
         </tr>
         <tr v-show="config.openThird && config.show">
-          <th>提前</th>
-          <td>
+          <th>
             <input class="number" type="number" min="0" max="1440" v-model="config.third">
-            <span>分钟提醒 </span>
+          </th>
+          <td>
+            <span>分钟前</span>
           </td>
         </tr>
       </table>
@@ -57,12 +76,7 @@
       <p v-show="config.show">
         <a class="btn primary" href="javascript:;" v-on:click="pushtest">推送测试</a>
       </p>
-      <p>
-        <a class="btn primary" href="javascript:;" v-on:click="updateList" v-bind:class="{isLoading:isLoading}">更新课表</a>
-      </p>
-      <p>
-        <a class="btn danger" href="javascript:;" v-on:click="signout">注销</a>
-      </p>
+
     </card>
     <card v-if="!hasServiceWorker">
       <p class="danger pd1em">当前浏览器不支持ServiceWorker</p>
@@ -175,6 +189,7 @@ export default {
         }
         if (result.code === 0) {
           Listener.$emit('success-login', result)
+          alert('更新成功！')
         } else {
           alert(result.msg)
         }
@@ -235,28 +250,28 @@ export default {
             _this.$watch('config', function (_new, _old) {
               //  if the input is "" string, let it be 0 at nextTick
               if (_new.first === '' || _new.first < 0) {
-                _new.first = 0
-              } else if (_new.first.charAt(0) === 0) {
+                _new.first = '0'
+              } else if (_new.first.charAt(0) === '0' && _new.first.length >= 2) {
                 _new.first = _new
                   .first
                   .slice(1)
               }
               if (_new.second === '' || _new.second < 0) {
-                _new.second = 0
-              } else if (_new.second.charAt(0) === 0) {
+                _new.second = '0'
+              } else if (_new.second.charAt(0) === '0' && _new.second.length >= 2) {
                 _new.second = _new
                   .second
                   .slice(1)
               }
               if (_new.third === '' || _new.third < 0) {
-                _new.third = 0
-              } else if (_new.third.charAt(0) === 0) {
+                _new.third = '0'
+              } else if (_new.third.charAt(0) === '0' && _new.third.length >= 2) {
                 _new.third = _new
                   .third
                   .slice(1)
               }
 
-              //  延迟1.5s 保存配置对象到ServiceWorker
+              //  延迟1.5s 保存配置对象到ServiceWorker 或许 -1s 更合适
               if (_timer) {
                 clearTimeout(_timer)
               }
@@ -291,9 +306,7 @@ export default {
 </script>
 <style>
 table.config {
-  margin: auto;
   position: relative;
-  min-width: 300px;
   border-collapse: collapse;
 }
 

@@ -1,39 +1,37 @@
 /**
  *  上课的时间
  */
-var TIME_GAP = [
-  {
-    fromH: 8,
-    fromM: 0,
-    toH: 9,
-    toM: 40
-  }, {
-    fromH: 10,
-    fromM: 5,
-    toH: 11,
-    toM: 45
-  }, {
-    fromH: 14,
-    fromM: 0,
-    toH: 15,
-    toM: 40
-  }, {
-    fromH: 16,
-    fromM: 5,
-    toH: 17,
-    toM: 45
-  }, {
-    fromH: 19,
-    fromM: 0,
-    toH: 20,
-    toM: 40
-  }, {
-    fromH: 20,
-    fromM: 50,
-    toH: 22,
-    toM: 30
-  }
-]
+var TIME_GAP = [{
+  fromH: 8,
+  fromM: 0,
+  toH: 9,
+  toM: 40
+}, {
+  fromH: 10,
+  fromM: 5,
+  toH: 11,
+  toM: 45
+}, {
+  fromH: 14,
+  fromM: 0,
+  toH: 15,
+  toM: 40
+}, {
+  fromH: 16,
+  fromM: 5,
+  toH: 17,
+  toM: 45
+}, {
+  fromH: 19,
+  fromM: 0,
+  toH: 20,
+  toM: 40
+}, {
+  fromH: 20,
+  fromM: 50,
+  toH: 22,
+  toM: 30
+}]
 
 /**
  *  当前时间是否在上课
@@ -44,7 +42,7 @@ var TIME_GAP = [
  * @param {boolean} isEqual  是否包含整点
  * @returns {boolean}
  */
-function isHavingClass (_index, hour, minute, isEqual) {
+function isHavingClass(_index, hour, minute, isEqual) {
   var T = TIME_GAP[_index]
   if (isEqual) {
     return (T.fromH <= hour && T.fromM <= minute) && (T.toH >= hour && T.toM >= minute)
@@ -60,7 +58,7 @@ function isHavingClass (_index, hour, minute, isEqual) {
  * @param {object} b
  * @returns {number}
  */
-function sortClassList (a, b) {
+function sortClassList(a, b) {
   if (a.whichClass.substring(1, 3) > b.whichClass.substring(1, 3)) {
     return 1
   } else {
@@ -74,7 +72,7 @@ function sortClassList (a, b) {
  * @param {string} str
  * @returns {number}
  */
-function getRowIndex (str) {
+function getRowIndex(str) {
   if (typeof str === 'object') {
     str = str
       .whichClass
@@ -95,13 +93,13 @@ function getRowIndex (str) {
  * @param {number} num
  * @returns {number}
  */
-function getColIndex (num) {
+function getColIndex(num) {
   if (!num && num !== 0) {
     return 0
   }
-  return num === 0
-    ? 6
-    : num - 1
+  return num === 0 ?
+    6 :
+    num - 1
 }
 
 /**
@@ -110,7 +108,7 @@ function getColIndex (num) {
  * @param {Date} thatDay
  * @returns
  */
-function doTimeCount (thatDay) {
+function doTimeCount(thatDay) {
   var timeGap = thatDay - new Date(2017, 1, 27)
   var dayPast = Math.floor(timeGap / (1000 * 60 * 60 * 24)) + 1
   var weekendPast = Math.ceil(dayPast / 7)
@@ -141,22 +139,40 @@ function doTimeCount (thatDay) {
  * 根据学生id获取课表
  *
  * @param {string} sid
- * @param {function} callback ;获取成功后执行的回调函数
+ * @param {function} callback（） ;获取成功后执行的回调函数
  * @param {object} option
  */
-function getListById (sid, callback, option) {
+function getListById(sid, callback, option) {
   var xhr = new XMLHttpRequest()
-  xhr.open('get', './api/kebiao/stu/' + sid + '?t=' + Date.now() + (option.root
-    ? '#ROOTUSER'
-    : ''))
+  var done = false
+  option = option || {}
+  xhr.open('get', './api/kebiao/stu/' + sid + '?t=' + Date.now() + (option.root ? '#ROOTUSER' : ''))
 
   xhr.responseType = 'json'
   if (option.root) {
     xhr.setRequestHeader('X-ROOTUSER', 'ROOT')
   }
   xhr.setRequestHeader('X-SW-tag', 'get-list')
+  xhr.onreadystatechange = function (e) {
+    //  兼容微信内置浏览器
+    if (!done) {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          done = true
+          callback(null, xhr.response)
+        } else {
+          done = true
+          callback(null, {
+            msg: (xhr.response && xhr.response.msg) || '出错！'
+          })
+        }
+      }
+    }
+  }
   xhr.onload = function (e) {
-    callback(null, xhr.response)
+    if (!done) {
+      callback(null, xhr.response)
+    }
   }
   xhr.onerror = function (e) {
     alert('发送失败！')

@@ -746,7 +746,7 @@ function showNotification(title, option) {
     ],
     actions: [{
       action: 'dismiss',
-      title: ''
+      title: getDismissWords()
     }]
   }, option)
 

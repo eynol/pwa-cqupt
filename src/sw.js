@@ -99,9 +99,11 @@ function getColIndex(num) {
   if (!num && num !== 0) {
     return 0
   }
-  return num === 0 ?
-    6 :
-    num - 1
+  if (num === 0) {
+    return 6
+  } else {
+    return num - 1
+  }
 }
 
 /**
@@ -137,12 +139,13 @@ function doTimeCount(thatDay) {
   }
 }
 
-
 const DB_NAME = 'cykb' // 数据库名称
 // indexedDB 数据库版本， 如果以往的表结构有变化 需要在onupgradeneeded中更新
-const DB_VER = 1
+const DB_VER = 2
+//  版本2 增加hitokoto的保存
 const NAME_LIST_ALL = 'lists' //  缓存所有取得的课表的地方
 const NAME_CAT = 'SchrodingerCat' // 存储其他对象的地方
+const NAME_HITOKOTO = 'hitokoto' // 存储一言
 
 // 默认的配置对象，包含提醒时间
 const configDefaultSetting = {
@@ -188,13 +191,24 @@ function onupgradeneeded(e) {
       keyPath: 'id'
     })
   }
+  if (!db.objectStoreNames.contains(NAME_HITOKOTO)) {
+    let hitokoto = db.createObjectStore(NAME_HITOKOTO, {
+      keyPath: 'id'
+    })
+    hitokoto.createIndex('id', 'id', {
+      unique: true
+    })
+  }
 }
-
 
 /**
  *    Cache Logic Here
  */
 const CACHE_NAME = 'precache-201706070050'
+const VERSION_TAG = '1.1.1'
+const updateInfoBody = '' +
+  '1.兼容旧版本浏览器中 请求没有响应的问题（xhr.response）\n' +
+  '2.使用Hitokoto一言API接口, 在离线情况下将使用之前缓存过的一言数据'
 
 const {
   assets
@@ -249,13 +263,15 @@ global.registration.addEventListener('updatefound', e => {
   })
 })
 
-
 // After the install event.
 self.addEventListener('activate', (event) => {
   if (DEBUG) {
     console.log('[SW] Activate event')
   }
 
+  showNotification('已更新至 ' + VERSION_TAG + '！', {
+    body: updateInfoBody
+  })
   // Clean the caches
   event.waitUntil(
     global.caches
@@ -274,7 +290,6 @@ self.addEventListener('activate', (event) => {
     }).then(() => self.clients.claim()),
   )
 })
-
 
 self.addEventListener('fetch', (event) => {
   const request = event.request
@@ -298,9 +313,10 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-
   if (request.headers.get('X-SW-tag') === 'get-list') {
     resource = getListFromServer(request)
+  } else if (request.headers.get('X-SW-tag') === 'hitokoto') {
+    resource = getHitokoto(request)
   } else {
     resource = global.caches.match(request)
       .then((response) => {
@@ -357,8 +373,6 @@ self.addEventListener('fetch', (event) => {
 
   event.respondWith(resource)
 })
-
-
 
 self.addEventListener('notificationclick', function (event) {
   switch (event.action) {
@@ -711,9 +725,6 @@ function getListFromServer(request) {
                   cat
                     .put(json, NAME_CAT)
                     .onsuccess = () => {
-                      showNotification('更新课表成功!', {
-                        body: '学号为' + json.id
-                      })
                       resolve(resp)
                     }
                 } else {
@@ -729,6 +740,90 @@ function getListFromServer(request) {
         })
     })
   })
+}
+
+function getHitokoto(request) {
+  if (DEBUG) {
+    console.log('[sw]request hitokoto', request)
+  }
+  if (navigator.onLine) {
+    return fetch(request.url).then(resp => {
+      return new Promise((resolve, reject) => {
+        resp
+          .clone()
+          .json()
+          .then(json => {
+            getDB().then(db => {
+              let transaction = db.transaction([
+                NAME_HITOKOTO
+              ], 'readwrite')
+              let hitokoto = transaction.objectStore(NAME_HITOKOTO)
+
+              hitokoto.put(json).onsuccess = (e) => {
+                console.log('addAttempt', e)
+                resolve(resp)
+              }
+            })
+          })
+      })
+    })
+  } else {
+    //  离线状态下，随机返回缓存的
+    return new Promise((resolve, reject) => {
+      getDB().then(db => {
+        let transaction = db.transaction([
+          NAME_HITOKOTO
+        ], 'readwrite')
+        let hitokoto = transaction.objectStore(NAME_HITOKOTO)
+        let countRequest = hitokoto.count()
+        countRequest.onerror = (e) => {
+          reject(e)
+        }
+        countRequest.onsuccess = (e) => {
+          let total = countRequest.result
+          let luckIndex = Math.floor(Math.random() * total)
+          let jumped = false
+          let makeAResponse = function (json) {
+            let body = new Blob([JSON.stringify(json, null, 2)], {
+              type: 'application/json'
+            })
+            let size = body.size
+            return new Response(body, {
+              'status': 200,
+              'statusText': 'OK',
+              headers: {
+                'Content-Length': size
+              }
+            })
+          }
+          let getResultReq = hitokoto.openCursor()
+          getResultReq.onerror = (e) => {
+            reject(e)
+          }
+          getResultReq.onsuccess = (e) => {
+            let cursor = e.target.result
+            if (DEBUG) {
+              console.log('[sw]in getResultReq', e, getResultReq)
+            }
+            if (!jumped) {
+              if (luckIndex === 0) {
+                //  cursor.advance的参数必须是大于0的整数
+                resolve(makeAResponse(cursor.value))
+              } else {
+                cursor.advance(luckIndex)
+                jumped = true
+              }
+            } else {
+              resolve(makeAResponse(cursor.value))
+            }
+          }
+        }
+      })
+    }).then(function (resp) {
+      console.log(resp.clone())
+      return Promise.resolve(resp)
+    })
+  }
 }
 
 function showNotification(title, option) {

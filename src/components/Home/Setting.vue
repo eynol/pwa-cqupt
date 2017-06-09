@@ -90,20 +90,25 @@
       <p class="pd1em">
         本应用采用渐进式Web应用开发，可以添加快捷方式到桌面作为为本地应用使用。 目前只有Android系统上的google浏览器和火狐浏览器支持该技术，苹果五年计划中提到可能会支持。 请在这两个浏览器中打开本网页，然后在浏览器的「选项」中找到「添加至主屏幕」，然后就可以像原生应用一样使用本应用了。
       </p>
-      <p>如果不清楚怎么添加，可以查看操作演示。（建议在wifi下观看）
+      <p>如果不清楚怎么添加，可以查看操作演示。（建议在wifi下观看~80MB）
         <br>
         <a class="btn primary" href="http://pluscdn.heitaov.cn/Screenrecord-2017-03-12-23-30-39-643.mp4" target="_blank">
           <strong>添加到桌面</strong> 操作演示</a>
       </p>
     </card>
-
+    <card>
+      <p>首页中的文字有70%的概率来自hitokoto.cn
+        <br>
+        <a href="http://hitokoto.cn" target="_blank" rel="noopener"  class="btn primary">hitokoto.cn</a>
+      </p>
+    </card>
     <card>
       <p>开发者：Vankai</p>
       <p>开发者邮箱：mr.taokai@foxmail.com
         <br>
         <a class="btn primary" href="mailto:mr.taokai@foxmail.com">发送邮件</a>
       </p>
-      <p>Version: 1.1.0
+      <p>Version: 1.1.1
         <br>
         <a class="btn primary" href="https://github.com/vankai/pwa-cqupt/releases" target="_blank">ChangeLog</a>
       </p>
@@ -113,7 +118,7 @@
         <a class="btn primary" href="https://github.com/vankai/pwa-cqupt" target="_blank">GitHub地址</a>
       </p>
       <p>
-        QQ交流群：390261126，点击加群
+        欢迎加入QQ交流群：390261126，点击加群
         <br>
         <a class="btn primary" target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=c936e8d0406a9a1dd11b2694696647019c1cada073335db9911e85df3fe8c75b">PC</a>
         <a class="btn primary" href="mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26k%3DoXY3IfW_SB-0ftUxIwcOvbD3Rg_Pch86">Android</a>
@@ -174,7 +179,12 @@ export default {
         }
         return false
       })
-    this.initConfig() //  执行初始化操作
+    if (typeof MessageChannel === 'undefined') {
+      //  旧版本浏览器没有该构造函数
+      return
+    } else {
+      this.initConfig() //  执行初始化操作
+    }
   },
   methods: {
     updateList: function () {
@@ -216,6 +226,7 @@ export default {
     initConfig: function () {
       //  初始化组件操作，需要从serviceWorker中获取保存的配置信息
       var _this = this
+
       var mc = new MessageChannel()
       console.log('inited')
       navigator

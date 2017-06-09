@@ -23,6 +23,7 @@ var webpackConfig = require('./webpack.dev.conf')
 
 
 var api = require('../routes/api');
+var proxy = require('../routes/proxy');
 
 
 // default port where dev server listens for incoming traffic
@@ -62,10 +63,10 @@ Object.keys(proxyTable).forEach(function (context) {
 })
 
 app.get('/manifest.json',function(req,res,next){
-  res.sendFile('manifest.json')
+  res.sendFile(path.resolve(__dirname,'../manifest.json'))
 })
 app.use('/api',api);
-
+app.use('/proxy', proxy)
 
 // handle fallback for HTML5 history API
 app.use(require('connect-history-api-fallback')())
@@ -89,8 +90,6 @@ app.use(cookieParser());
 // serve pure static assets
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
 app.use('/static',express.static(path.join(__dirname, '../static')));
-
-console.log(path.resolve(__dirname, '../public'))
 
 
 var uri = 'http://localhost:' + port

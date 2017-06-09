@@ -1,6 +1,6 @@
 <template>
   <frame-layout>
-    <p slot="title">不要浮躁</p>
+    <p slot="title">阅读</p>
     <div class="one-post-view" slot="body">
       <p>纽约时间比加州时间早三个小时，</p>
       <p>New York is 3 hours ahead of California,</p>

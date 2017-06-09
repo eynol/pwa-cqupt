@@ -4,13 +4,13 @@
     <div class="ui-addition">
       <ul class="addtion__list">
         <li class="addtion__list-item">
-          <router-link to="/others/list">查看其他课表</router-link>
+          <router-link to="/others/list">查看他人课表</router-link>
         </li>
         <li class="addtion__list-item">
           <router-link to="/phones">校内联系电话</router-link>
         </li>
         <li class="addtion__list-item">
-          <router-link to="/post">一篇文章</router-link>
+          <router-link to="/post">Your Time Zone</router-link>
         </li>
       </ul>
     </div>

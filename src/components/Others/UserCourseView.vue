@@ -5,6 +5,7 @@
     </a>
     <p slot="title">{{user.name}}的课表</p>
     <div slot="body">
+      <p class="center aligned">* 浅绿色背景的课程在本周有课 *</p>
       <courseTable query='.frame__body' :list="courseList"></courseTable>
     </div>
   </frame-layout>

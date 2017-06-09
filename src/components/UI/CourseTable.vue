@@ -128,10 +128,6 @@ function tableScroll(e) {
   })
 }
 
-function touchMoveHandler(e) {
-
-}
-
 var thContentScroll = throttle(contentScroll, 60)
 var thTableScroll = throttle(tableScroll, 60)
 
@@ -232,7 +228,6 @@ export default {
 
     document.querySelector(this.query).addEventListener('scroll', thContentScroll)
 
-    table.addEventListener('touchstart', touchMoveHandler)
     table.addEventListener('scroll', thTableScroll)
 
     window.addEventListener('resize', resizeHandler)
@@ -245,7 +240,6 @@ export default {
 
     window.removeEventListener('resize', resizeHandler)
     document.querySelector(this.query).removeEventListener('scroll', thContentScroll)
-    table.removeEventListener('touchstart', touchMoveHandler)
     table.removeEventListener('scroll', thTableScroll)
   }
 }
@@ -258,6 +252,7 @@ export default {
   width: 100%;
   display: block;
   background-color: white;
+  will-change: contents;
 }
 
 .table-all_class thead tr {
@@ -265,7 +260,8 @@ export default {
 }
 
 .table-all_class thead th {
-  background-color: white;
+  background: white;
+  color: #ff008a;
 }
 
 table.noWeekend th:nth-child(7),
@@ -286,6 +282,7 @@ table.noWeekend tr td:nth-child(8) {
 table tr td:nth-child(1) {
   min-width: 3em;
   width: 3em;
-  background-color: white;
+  color: #ff008a;
+  background: white;
 }
 </style>

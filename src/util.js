@@ -94,12 +94,15 @@ function getRowIndex(str) {
  * @returns {number}
  */
 function getColIndex(num) {
+  num = Number(num) // make sure
   if (!num && num !== 0) {
     return 0
   }
-  return num === 0 ?
-    6 :
-    num - 1
+  if (num === 0) {
+    return 6
+  } else {
+    return num - 1
+  }
 }
 
 /**
@@ -136,49 +139,118 @@ function doTimeCount(thatDay) {
 }
 
 /**
- * 根据学生id获取课表
+ *  单独获取JSON格式的请求函数
  *
- * @param {string} sid
- * @param {function} callback（） ;获取成功后执行的回调函数
- * @param {object} option
+ * @param {string} url ;携带参数的url
+ * @param {function} callback ;获取成功后执行的回调函数
+ * @param {function} beforeSend ;发送前处理header头
  */
-function getListById(sid, callback, option) {
+
+function getJSON(url, callback, beforeSend) {
   var xhr = new XMLHttpRequest()
   var done = false
-  option = option || {}
-  xhr.open('get', './api/kebiao/stu/' + sid + '?t=' + Date.now() + (option.root ? '#ROOTUSER' : ''))
+  var _JSONResp = function (xhr) {
+    var res = xhr.response || xhr.responseText
+    var ret
+    if (typeof res === 'string') {
+      try {
+        ret = JSON.parse(res)
+      } catch (error) {
+        if (xhr.status === 500) {
+          ret = {
+            code: 500,
+            msg: '服务器发生错误~请联系管理员！'
+          }
+        } else if (xhr.status === 404) {
+          ret = {
+            code: 404,
+            msg: '服务器没有找到请求资源！'
+          }
+        } else {
+          ret = {
+            code: -6,
+            msg: '服务器返回数据，但格式不正确！'
+          }
+        }
 
-  xhr.responseType = 'json'
-  if (option.root) {
-    xhr.setRequestHeader('X-ROOTUSER', 'ROOT')
+        console.error(error)
+      }
+      return ret
+    } else if (typeof res === 'object') {
+      return res
+    } else if (typeof res === 'undefined') {
+      return {
+        code: -6,
+        msg: '服务器返回的结果没有数据！'
+      }
+    }
   }
-  xhr.setRequestHeader('X-SW-tag', 'get-list')
+
+  xhr.open('get', url)
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+  beforeSend && beforeSend(xhr)
+  xhr.responseType = 'json'
+
   xhr.onreadystatechange = function (e) {
     //  兼容微信内置浏览器
     if (!done) {
       if (xhr.readyState === 4) {
-        if (xhr.status === 200) {
-          done = true
-          callback(null, xhr.response)
-        } else {
-          done = true
-          callback(null, {
-            msg: (xhr.response && xhr.response.msg) || '出错！'
-          })
-        }
+        done = true
+        callback(null, _JSONResp(xhr))
       }
     }
   }
   xhr.onload = function (e) {
     if (!done) {
-      callback(null, xhr.response)
+      done = true
+      callback(null, _JSONResp(xhr))
     }
   }
   xhr.onerror = function (e) {
-    alert('发送失败！')
     callback(e)
   }
   xhr.send()
+}
+
+/**
+ * 根据学生id获取课表
+ *
+ * @param {string} sid
+ * @param {function} callback ;获取成功后执行的回调函数
+ * @param {object} option
+ */
+function getListById(sid, callback, option) {
+  var hash
+  if (option && option.root) {
+    hash = '#ROOTUSER'
+  } else {
+    hash = ''
+  }
+
+  var url = './api/kebiao/stu/' + sid + '?t=' + Date.now() + hash
+
+  var beforeSend = function (xhr) {
+    if (option && option.root) {
+      xhr.setRequestHeader('X-ROOTUSER', 'ROOT')
+    }
+    xhr.setRequestHeader('X-SW-tag', 'get-list')
+  }
+
+  getJSON(url, callback, beforeSend)
+}
+
+/**
+ * 根据学生id获取课表
+ *
+ * @param {string} sid
+ * @param {function} callback ;获取成功后执行的回调函数
+ * @param {object} option
+ */
+function getHitokoto(callback) {
+  var beforeSend = function (xhr) {
+    xhr.setRequestHeader('X-SW-tag', 'hitokoto')
+  }
+  getJSON('./proxy/hitokoto?t=' + Date.now(), callback, beforeSend)
 }
 export default {
   isHavingClass,
@@ -186,5 +258,7 @@ export default {
   getRowIndex,
   sortClassList,
   doTimeCount,
-  getListById
+  getJSON,
+  getListById,
+  getHitokoto
 }

@@ -6,7 +6,7 @@
         <li class="phone__list-item" v-for="u,index in phonelist">
           <div class="phone">
             <h1 class="phone-name">{{u.name}}</h1>
-            <div>{{u.phone}}</div>
+            <div v-html="u.phone"></div>
           </div>
         </li>
       </ul>
@@ -23,8 +23,8 @@ export default {
   data: function () {
     return {
       phonelist: [
-        { name: '校医院', phone: '62460055/62460278' },
-        { name: '保卫处', phone: '62461926/62461018' }
+        { name: '校医院', phone: '62460055/62460278<br>62460120' },
+        { name: '保卫处', phone: '62461926/62461018<br>62460110(24小时值班电话)' }
       ]
     }
   }
@@ -56,9 +56,10 @@ export default {
   transition: all .3s;
   max-width: 768px;
 }
-@media screen and (min-width:768px){
-  .phone{
-    margin:20px auto;
+
+@media screen and (min-width:768px) {
+  .phone {
+    margin: 20px auto;
   }
 }
 

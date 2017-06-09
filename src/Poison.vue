@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import util from '@/util'
 export default {
   name: 'poison',
   data: function () {
@@ -31,30 +32,65 @@ export default {
         '[毒]你必须非常努力，才能相信自己是无能为力。',
         '[毒]只要肯努力，没有什么事情是搞不砸的。',
         '[毒]加油，你是最胖的。',
-        '聚光灯效应',
+        'Happiness = Reality - Expectation',
         '很多东西都是遗传，你能做的，就是变异。',
         '怀疑所有没有思考过和没有证据的东西。',
         '你只有很努力，才能表现的毫不费力。',
         '如果有人被你吸引，他们在与你谈话时，眼睛会比平常更闪烁。',
         '为了在他人的脑海中种植一个想法的种子，应该要求他们不要想到某个特定的事情。',
         '信心的关键是走进一个房间，并假设每个人都喜欢你。',
-        '努力不一定成功，但不努力一定会  很 ~ 轻 ~ 松 ~ 哦 (๑•̀ω•́๑)  ——匿名'
+        '[毒]努力不一定成功，但不努力一定会  很 ~ 轻 ~ 松 ~ 哦 (๑•̀ω•́๑)  ——匿名'
       ]
     }
   },
   created: function () {
-    this.result = this.taste()
+    this.openTheBox()
   },
   methods: {
-    taste: function () {
+    yogurt: function () {
       let radomIndex = Math.floor(Math.random() * this.bag.length)
       return this.bag[radomIndex]
+    },
+    choseAnotherFood: function (yogurt, taste) {
+      util.getHitokoto(function (err, res) {
+        if (err) {
+          taste(yogurt)
+        } else {
+          if (res.hitokoto) {
+            taste(res.hitokoto + '  ——' + res.from)
+          } else {
+            taste(yogurt)
+          }
+        }
+      })
+    },
+    taste: function (something) {
+      this.result = something
+    },
+    openTheBox: function () {
+      var _this = this
+      var lucky = Math.random() > 0.3
+      if (lucky) {
+        this.choseAnotherFood(this.yogurt(), function (finalChoice) {
+          _this.taste(finalChoice)
+        })
+      } else {
+        this.taste(this.yogurt())
+      }
     }
   }
 }
 </script>
 <style>
-.ui-poison{
+.ui-poison {
   text-align: left;
+  max-width: 768px;
+}
+
+@media screen and (min-width:768px) {
+  .ui-poison {
+    margin: 20px auto;
+    text-align: center
+  }
 }
 </style>
